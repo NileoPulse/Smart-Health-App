@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/app_theme.dart';
 import 'providers/app_state.dart';
 import 'screens/login_screen.dart';
@@ -49,24 +50,19 @@ class SmartHealthApp extends StatelessWidget {
       darkTheme: darkTheme,
       themeMode: appState.isDark ? ThemeMode.dark : ThemeMode.light,
 
-      // ── Language / Locale ─────────────────────────────
-      locale: Locale(appState.language),
+      locale:
+          Locale(appState.language), // ده كفيل يخلي التطبيق RTL لو اللغة 'ar'
       supportedLocales: const [
         Locale('en'),
         Locale('ar'),
         Locale('fr'),
       ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
 
-      // ── RTL for Arabic ────────────────────────────────
-      builder: (context, child) {
-        return Directionality(
-          textDirection:
-              appState.language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
-          child: child!,
-        );
-      },
-
-      // ── Skip login if already logged in ──────────────
       initialRoute: appState.isLoggedIn ? '/main' : '/login',
       routes: {
         '/login': (_) => const LoginScreen(),

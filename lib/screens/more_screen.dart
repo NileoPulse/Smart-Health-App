@@ -5,7 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/widgets.dart';
-import 'extra_screens.dart';
+
+// extra_screens.dart بيضم: EmergencyQrScreen, RequestSmartCardScreen,
+// ReportLostCardScreen — بنديه alias عشان نفصله عن
+// support_chat_screen.dart اللي فيه نسخة قديمة بنفس الاسم.
+import 'extra_screens.dart' as extra;
+
+// دي النسخة الذكية اللي بتستخدم AppState.chatHistory
+import 'support_chat_screen.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({super.key});
@@ -272,11 +279,11 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
 
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
-    final reqDateStr = prefs.getString('requestDate');
-    final repDateStr = prefs.getString('replacementDate');
+    final reqDateStr = prefs.getString(PrefKeys.requestDate);
+    final repDateStr = prefs.getString(PrefKeys.replacementDate);
     setState(() {
-      _isRequestPending = prefs.getBool('isRequestPending') ?? false;
-      _isCardBlocked = prefs.getBool('isCardBlocked') ?? false;
+      _isRequestPending = prefs.getBool(PrefKeys.isRequestPending) ?? false;
+      _isCardBlocked = prefs.getBool(PrefKeys.isCardBlocked) ?? false;
       _requestDate = reqDateStr != null ? DateTime.tryParse(reqDateStr) : null;
       _replacementDate =
           repDateStr != null ? DateTime.tryParse(repDateStr) : null;
@@ -292,8 +299,8 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
   Future<void> _onRequestDone() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    await prefs.setBool('isRequestPending', true);
-    await prefs.setString('requestDate', now.toIso8601String());
+    await prefs.setBool(PrefKeys.isRequestPending, true);
+    await prefs.setString(PrefKeys.requestDate, now.toIso8601String());
     setState(() {
       _isRequestPending = true;
       _requestDate = now;
@@ -303,9 +310,9 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
   Future<void> _onLostDone() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    await prefs.setBool('isCardBlocked', true);
-    await prefs.setBool('isRequestPending', true);
-    await prefs.setString('replacementDate', now.toIso8601String());
+    await prefs.setBool(PrefKeys.isCardBlocked, true);
+    await prefs.setBool(PrefKeys.isRequestPending, true);
+    await prefs.setString(PrefKeys.replacementDate, now.toIso8601String());
     setState(() {
       _isCardBlocked = true;
       _isRequestPending = true;
@@ -426,14 +433,14 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
                     final result = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const RequestSmartCardScreen()),
+                          builder: (_) => const extra.RequestSmartCardScreen()),
                     );
                     if (result == true) {
                       final now = DateTime.now();
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.setBool('isRequestPending', true);
+                      await prefs.setBool(PrefKeys.isRequestPending, true);
                       await prefs.setString(
-                          'requestDate', now.toIso8601String());
+                          PrefKeys.requestDate, now.toIso8601String());
                       if (mounted) {
                         setState(() {
                           _isRequestPending = true;
@@ -465,15 +472,15 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
                     final result = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const ReportLostCardScreen()),
+                          builder: (_) => const extra.ReportLostCardScreen()),
                     );
                     if (result == true) {
                       final now = DateTime.now();
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.setBool('isCardBlocked', true);
-                      await prefs.setBool('isRequestPending', true);
+                      await prefs.setBool(PrefKeys.isCardBlocked, true);
+                      await prefs.setBool(PrefKeys.isRequestPending, true);
                       await prefs.setString(
-                          'replacementDate', now.toIso8601String());
+                          PrefKeys.replacementDate, now.toIso8601String());
                       if (mounted) {
                         setState(() {
                           _isCardBlocked = true;

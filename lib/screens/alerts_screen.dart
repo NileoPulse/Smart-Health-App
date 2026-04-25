@@ -98,13 +98,18 @@ class _AlertsScreenState extends State<AlertsScreen> {
             Text('${_items.length} active notifications',
                 style: const TextStyle(fontSize: 13, color: Colors.white70)),
             const SizedBox(height: 14),
-            Row(children: [
-              _fBtn('All', _Filter.all),
-              const SizedBox(width: 8),
-              _fBtn('Health Alerts', _Filter.health),
-              const SizedBox(width: 8),
-              _fBtn('System Alerts', _Filter.system),
-            ]),
+            
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const NeverScrollableScrollPhysics(),
+              child: Row(children: [
+                _fBtn('All', _Filter.all),
+                const SizedBox(width: 8),
+                _fBtn('Health Alerts', _Filter.health),
+                const SizedBox(width: 8),
+                _fBtn('System Alerts', _Filter.system),
+              ]),
+            ),
           ]),
         )),
         Expanded(
@@ -160,7 +165,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return GestureDetector(
       onTap: () => setState(() => _filter = f),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: sel ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
@@ -244,7 +250,6 @@ class _AlertCard extends StatelessWidget {
                     color: iconColor)),
           ],
         ])),
-        // ✅ X button now works
         GestureDetector(
           onTap: onDismiss,
           child: Padding(

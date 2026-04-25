@@ -1,15 +1,38 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+// ── Brand colours (stay the same in light & dark) ──────────────────────────
 const _kBlue = Color(0xFF2196F3);
 const _kBlueDark = Color(0xFF1565C0);
-const _kBg = Color(0xFFF5F7FA);
-const _kCard = Colors.white;
-const _kBorder = Color(0xFFE0E0E0);
-const _kTextDark = Color(0xFF1A1A2E);
-const _kTextGrey = Color(0xFF757575);
 const _kGreen = Color(0xFF4CAF50);
 const _kRed = Color(0xFFEF5350);
+
+// ── Theme-aware colour helpers ──────────────────────────────────────────────
+extension _Th on BuildContext {
+  ColorScheme get cs => Theme.of(this).colorScheme;
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  // Backgrounds
+  Color get bg => isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA);
+  Color get card => isDark ? const Color(0xFF1E1E1E) : Colors.white;
+  Color get appBarBg => isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
+  // Borders / dividers
+  Color get border =>
+      isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
+
+  // Text
+  Color get textDark =>
+      isDark ? const Color(0xFFF0F0F0) : const Color(0xFF1A1A2E);
+  Color get textGrey =>
+      isDark ? const Color(0xFF9E9E9E) : const Color(0xFF757575);
+  Color get hintColor =>
+      isDark ? const Color(0xFF616161) : const Color(0xFFBDBDBD);
+
+  // Input field fill
+  Color get fieldFill =>
+      isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F7FA);
+}
 
 // ══════════════════════════════════════════════════════════════
 //  EMERGENCY QR SCREEN
@@ -20,7 +43,7 @@ class EmergencyQrScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: context.bg,
       appBar: AppBar(
         backgroundColor: _kRed,
         foregroundColor: Colors.white,
@@ -40,7 +63,7 @@ class EmergencyQrScreen extends StatelessWidget {
               border: Border.all(color: _kRed.withValues(alpha: 0.3)),
             ),
             child: Row(children: [
-              Icon(Icons.emergency_outlined, color: _kRed, size: 20),
+              const Icon(Icons.emergency_outlined, color: _kRed, size: 20),
               const SizedBox(width: 10),
               const Expanded(
                 child: Text(
@@ -57,22 +80,23 @@ class EmergencyQrScreen extends StatelessWidget {
                 width: 220,
                 height: 220,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: _kBorder, width: 2),
+                  color: context.card,
+                  border: Border.all(color: context.border, width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: CustomPaint(painter: _QrPainter()),
+                child:
+                    CustomPaint(painter: _QrPainter(color: context.textDark)),
               ),
               const SizedBox(height: 16),
-              const Text('EMERGENCY MEDICAL DATA',
+              Text('EMERGENCY MEDICAL DATA',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: _kTextDark,
+                      color: context.textDark,
                       letterSpacing: 0.5)),
               const SizedBox(height: 4),
               Text('Last updated: Today, 10:32 AM',
-                  style: TextStyle(fontSize: 11, color: _kTextGrey)),
+                  style: TextStyle(fontSize: 11, color: context.textGrey)),
             ]),
           ),
           const SizedBox(height: 16),
@@ -83,18 +107,18 @@ class EmergencyQrScreen extends StatelessWidget {
                   icon: Icons.person_outline,
                   label: 'Name',
                   value: 'Alex Johnson'),
-              const Divider(color: _kBorder, height: 16),
+              Divider(color: context.border, height: 16),
               _InfoRow(
                   icon: Icons.water_drop_outlined,
                   label: 'Blood Type',
                   value: 'O+',
                   iconColor: _kRed),
-              const Divider(color: _kBorder, height: 16),
+              Divider(color: context.border, height: 16),
               _InfoRow(
                   icon: Icons.medical_information_outlined,
                   label: 'Chronic Diseases',
                   value: 'None'),
-              const Divider(color: _kBorder, height: 16),
+              Divider(color: context.border, height: 16),
               _InfoRow(
                   icon: Icons.phone_outlined,
                   label: 'Emergency Contact',
@@ -105,11 +129,11 @@ class EmergencyQrScreen extends StatelessWidget {
           _Card(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Latest Vitals',
+              Text('Latest Vitals',
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: _kTextDark)),
+                      color: context.textDark)),
               const SizedBox(height: 12),
               Row(children: [
                 Expanded(
@@ -172,23 +196,29 @@ class _VitalMini extends StatelessWidget {
   final String label, value, unit;
   const _VitalMini(
       {required this.label, required this.value, required this.unit});
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Text(label, style: const TextStyle(fontSize: 10, color: _kTextGrey)),
+      Text(label, style: TextStyle(fontSize: 10, color: context.textGrey)),
       const SizedBox(height: 2),
       Text(value,
-          style: const TextStyle(
-              fontSize: 14, fontWeight: FontWeight.bold, color: _kTextDark)),
-      Text(unit, style: const TextStyle(fontSize: 9, color: _kTextGrey)),
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: context.textDark)),
+      Text(unit, style: TextStyle(fontSize: 9, color: context.textGrey)),
     ]);
   }
 }
 
 class _QrPainter extends CustomPainter {
+  final Color color;
+  const _QrPainter({required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF1A1A2E);
+    final paint = Paint()..color = color;
     final double cell = size.width / 10;
     const pattern = [
       [1, 1, 1, 1, 1, 1, 1, 0, 1, 0],
@@ -215,7 +245,7 @@ class _QrPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_QrPainter old) => false;
+  bool shouldRepaint(_QrPainter old) => old.color != color;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -227,16 +257,19 @@ class ShareReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: context.bg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: _kTextDark,
+        backgroundColor: context.appBarBg,
+        foregroundColor: context.textDark,
         elevation: 0,
-        title: const Text('Share Report',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('Share Report',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: context.textDark)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: _kBorder, height: 1),
+          child: Container(color: context.border, height: 1),
         ),
       ),
       body: Padding(
@@ -254,7 +287,7 @@ class ShareReportScreen extends StatelessWidget {
                     color: _kRed, size: 28),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -262,23 +295,25 @@ class ShareReportScreen extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: _kTextDark)),
-                      SizedBox(height: 2),
+                              color: context.textDark)),
+                      const SizedBox(height: 2),
                       Text('March 21, 2026 · Full session report',
-                          style: TextStyle(fontSize: 12, color: _kTextGrey)),
-                      SizedBox(height: 2),
+                          style:
+                              TextStyle(fontSize: 12, color: context.textGrey)),
+                      const SizedBox(height: 2),
                       Text('2.4 MB · PDF',
-                          style: TextStyle(fontSize: 11, color: _kTextGrey)),
+                          style:
+                              TextStyle(fontSize: 11, color: context.textGrey)),
                     ]),
               ),
             ]),
           ),
           const SizedBox(height: 24),
-          const Text('Share via',
+          Text('Share via',
               style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: _kTextDark)),
+                  color: context.textDark)),
           const SizedBox(height: 14),
           _ShareOption(
               icon: Icons.picture_as_pdf_rounded,
@@ -341,9 +376,9 @@ class _ShareOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: _kCard,
+          color: context.card,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _kBorder),
+          border: Border.all(color: context.border),
         ),
         child: Row(children: [
           Container(
@@ -359,15 +394,15 @@ class _ShareOption extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(label,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: _kTextDark)),
+                      color: context.textDark)),
               Text(subtitle,
-                  style: const TextStyle(fontSize: 12, color: _kTextGrey)),
+                  style: TextStyle(fontSize: 12, color: context.textGrey)),
             ]),
           ),
-          const Icon(Icons.chevron_right, color: _kTextGrey),
+          Icon(Icons.chevron_right, color: context.textGrey),
         ]),
       ),
     );
@@ -421,12 +456,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
       _ctrl.clear();
     });
     _scrollToBottom();
-
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
-      setState(() {
-        _msgs.add(_ChatMsg(text: _botReply(text), isBot: true, time: _now()));
-      });
+      setState(() => _msgs
+          .add(_ChatMsg(text: _botReply(text), isBot: true, time: _now())));
       _scrollToBottom();
     });
   }
@@ -460,40 +493,41 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     final now = DateTime.now();
     final h = now.hour % 12 == 0 ? 12 : now.hour % 12;
     final m = now.minute.toString().padLeft(2, '0');
-    final suffix = now.hour >= 12 ? 'PM' : 'AM';
-    return '$h:$m $suffix';
+    final sfx = now.hour >= 12 ? 'PM' : 'AM';
+    return '$h:$m $sfx';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: context.bg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: _kTextDark,
+        backgroundColor: context.appBarBg,
+        foregroundColor: context.textDark,
         elevation: 0,
         title: Row(children: [
           Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: _kBlue.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+                color: _kBlue.withValues(alpha: 0.1), shape: BoxShape.circle),
             child:
                 const Icon(Icons.smart_toy_outlined, color: _kBlue, size: 20),
           ),
           const SizedBox(width: 10),
-          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('SmartHealth Assistant',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: context.textDark)),
             Text('Always available',
-                style: TextStyle(fontSize: 11, color: _kTextGrey)),
+                style: TextStyle(fontSize: 11, color: context.textGrey)),
           ]),
         ]),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: _kBorder, height: 1),
+          child: Container(color: context.border, height: 1),
         ),
       ),
       body: Column(children: [
@@ -507,7 +541,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         ),
         if (_msgs.length <= 3)
           Container(
-            color: Colors.white,
+            color: context.appBarBg,
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -541,8 +575,8 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         Container(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: _kBorder)),
+            color: context.appBarBg,
+            border: Border(top: BorderSide(color: context.border)),
           ),
           child: SafeArea(
             top: false,
@@ -550,21 +584,21 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
               Expanded(
                 child: TextField(
                   controller: _ctrl,
-                  style: const TextStyle(fontSize: 14, color: _kTextDark),
+                  style: TextStyle(fontSize: 14, color: context.textDark),
                   decoration: InputDecoration(
                     hintText: 'Ask about machines, reports, cards...',
                     hintStyle:
-                        const TextStyle(color: Color(0xFFBDBDBD), fontSize: 13),
+                        TextStyle(color: context.hintColor, fontSize: 13),
                     filled: true,
-                    fillColor: _kBg,
+                    fillColor: context.fieldFill,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(color: _kBorder)),
+                        borderSide: BorderSide(color: context.border)),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
-                        borderSide: const BorderSide(color: _kBorder)),
+                        borderSide: BorderSide(color: context.border)),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide:
@@ -636,14 +670,15 @@ class _BubbleWidget extends StatelessWidget {
                   constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.7),
                   decoration: BoxDecoration(
-                    color: msg.isBot ? Colors.white : _kBlue,
+                    color: msg.isBot ? context.card : _kBlue,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
                       bottomLeft: Radius.circular(msg.isBot ? 4 : 16),
                       bottomRight: Radius.circular(msg.isBot ? 16 : 4),
                     ),
-                    border: msg.isBot ? Border.all(color: _kBorder) : null,
+                    border:
+                        msg.isBot ? Border.all(color: context.border) : null,
                     boxShadow: [
                       BoxShadow(
                           color: Colors.black.withValues(alpha: 0.05),
@@ -654,12 +689,12 @@ class _BubbleWidget extends StatelessWidget {
                   child: Text(msg.text,
                       style: TextStyle(
                           fontSize: 13,
-                          color: msg.isBot ? _kTextDark : Colors.white,
+                          color: msg.isBot ? context.textDark : Colors.white,
                           height: 1.4)),
                 ),
                 const SizedBox(height: 3),
                 Text(msg.time,
-                    style: const TextStyle(fontSize: 10, color: _kTextGrey)),
+                    style: TextStyle(fontSize: 10, color: context.textGrey)),
               ],
             ),
           ),
@@ -742,7 +777,7 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.card,
       body: SingleChildScrollView(
         child: Column(children: [
           Container(
@@ -779,23 +814,24 @@ class _OtpScreenState extends State<OtpScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
             child: Column(children: [
-              const Text('Enter Verification Code',
+              Text('Enter Verification Code',
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: _kTextDark)),
+                      color: context.textDark)),
               const SizedBox(height: 8),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: const TextStyle(
-                      fontSize: 14, color: _kTextGrey, height: 1.4),
+                  style: TextStyle(
+                      fontSize: 14, color: context.textGrey, height: 1.4),
                   children: [
                     const TextSpan(text: 'A 6-digit code was sent to\n'),
                     TextSpan(
                         text: widget.phoneOrEmail,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: _kTextDark)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: context.textDark)),
                   ],
                 ),
               ),
@@ -812,22 +848,22 @@ class _OtpScreenState extends State<OtpScreen> {
                       maxLength: 1,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: _kTextDark),
+                          color: context.textDark),
                       decoration: InputDecoration(
                         counterText: '',
                         filled: true,
                         fillColor: _ctrls[i].text.isNotEmpty
                             ? _kBlue.withValues(alpha: 0.08)
-                            : _kBg,
+                            : context.fieldFill,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: _kBorder)),
+                            borderSide: BorderSide(color: context.border)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: _kBorder)),
+                            borderSide: BorderSide(color: context.border)),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide:
@@ -854,7 +890,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kBlue,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: _kBorder,
+                    disabledBackgroundColor: context.border,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(26)),
@@ -872,8 +908,8 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
               const SizedBox(height: 20),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Text("Didn't receive the code? ",
-                    style: TextStyle(color: _kTextGrey, fontSize: 14)),
+                Text("Didn't receive the code? ",
+                    style: TextStyle(color: context.textGrey, fontSize: 14)),
                 _canResend
                     ? GestureDetector(
                         onTap: _startTimer,
@@ -884,8 +920,8 @@ class _OtpScreenState extends State<OtpScreen> {
                                 fontWeight: FontWeight.w600)),
                       )
                     : Text('Resend in ${_resendTimer}s',
-                        style: const TextStyle(
-                            color: _kTextGrey,
+                        style: TextStyle(
+                            color: context.textGrey,
                             fontSize: 14,
                             fontWeight: FontWeight.w500)),
               ]),
@@ -937,21 +973,22 @@ class _RequestSmartCardScreenState extends State<RequestSmartCardScreen> {
       });
   }
 
-  InputDecoration _deco(String label, String hint, IconData icon) {
+  InputDecoration _deco(
+      BuildContext context, String label, String hint, IconData icon) {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      prefixIcon: Icon(icon, color: _kTextGrey, size: 20),
+      prefixIcon: Icon(icon, color: context.textGrey, size: 20),
       filled: true,
-      fillColor: _kBg,
-      labelStyle: const TextStyle(color: _kTextGrey, fontSize: 13),
-      hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 13),
+      fillColor: context.fieldFill,
+      labelStyle: TextStyle(color: context.textGrey, fontSize: 13),
+      hintStyle: TextStyle(color: context.hintColor, fontSize: 13),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _kBorder)),
+          borderSide: BorderSide(color: context.border)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _kBorder)),
+          borderSide: BorderSide(color: context.border)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: _kBlue, width: 1.5)),
@@ -967,16 +1004,19 @@ class _RequestSmartCardScreenState extends State<RequestSmartCardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: context.bg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: _kTextDark,
+        backgroundColor: context.appBarBg,
+        foregroundColor: context.textDark,
         elevation: 0,
-        title: const Text('Request Smart Card',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('Request Smart Card',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: context.textDark)),
         bottom: PreferredSize(
             preferredSize: const Size.fromHeight(1),
-            child: Container(color: _kBorder, height: 1)),
+            child: Container(color: context.border, height: 1)),
       ),
       body: _submitted
           ? _SuccessView(onDone: () => Navigator.pop(context, true))
@@ -1003,7 +1043,7 @@ class _FormView extends StatelessWidget {
       addressCtrl,
       cityCtrl;
   final bool loading;
-  final InputDecoration Function(String, String, IconData) deco;
+  final InputDecoration Function(BuildContext, String, String, IconData) deco;
   final VoidCallback onSubmit;
 
   const _FormView({
@@ -1025,6 +1065,7 @@ class _FormView extends StatelessWidget {
       child: Form(
         key: formKey,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Info banner
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -1032,10 +1073,10 @@ class _FormView extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: _kBlue.withValues(alpha: 0.2)),
             ),
-            child: const Row(children: [
-              Icon(Icons.info_outline_rounded, color: _kBlue, size: 20),
-              SizedBox(width: 10),
-              Expanded(
+            child: Row(children: [
+              const Icon(Icons.info_outline_rounded, color: _kBlue, size: 20),
+              const SizedBox(width: 10),
+              const Expanded(
                 child: Text(
                   'Your Smart Card gives you faster access to SmartHealth kiosks. Fill in your details below.',
                   style: TextStyle(fontSize: 12, color: _kBlue, height: 1.4),
@@ -1044,16 +1085,16 @@ class _FormView extends StatelessWidget {
             ]),
           ),
           const SizedBox(height: 24),
-          const Text('Personal Information',
+          Text('Personal Information',
               style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: _kTextDark)),
+                  color: context.textDark)),
           const SizedBox(height: 14),
           TextFormField(
               controller: nameCtrl,
-              decoration: deco(
-                  'Full Name', 'Enter your full name', Icons.person_outline),
+              decoration: deco(context, 'Full Name', 'Enter your full name',
+                  Icons.person_outline),
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? 'Full name is required'
                   : null),
@@ -1061,8 +1102,8 @@ class _FormView extends StatelessWidget {
           TextFormField(
               controller: emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: deco(
-                  'Email Address', 'Enter your email', Icons.email_outlined),
+              decoration: deco(context, 'Email Address', 'Enter your email',
+                  Icons.email_outlined),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return 'Email is required';
                 if (!v.contains('@')) return 'Enter a valid email';
@@ -1072,30 +1113,30 @@ class _FormView extends StatelessWidget {
           TextFormField(
               controller: phoneCtrl,
               keyboardType: TextInputType.phone,
-              decoration: deco('Phone Number', 'Enter your phone number',
-                  Icons.phone_outlined),
+              decoration: deco(context, 'Phone Number',
+                  'Enter your phone number', Icons.phone_outlined),
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? 'Phone number is required'
                   : null),
           const SizedBox(height: 24),
-          const Text('Delivery Address',
+          Text('Delivery Address',
               style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: _kTextDark)),
+                  color: context.textDark)),
           const SizedBox(height: 14),
           TextFormField(
               controller: addressCtrl,
-              decoration: deco('Street Address', 'Enter your street address',
-                  Icons.home_outlined),
+              decoration: deco(context, 'Street Address',
+                  'Enter your street address', Icons.home_outlined),
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? 'Address is required'
                   : null),
           const SizedBox(height: 14),
           TextFormField(
               controller: cityCtrl,
-              decoration:
-                  deco('City', 'Enter your city', Icons.location_city_outlined),
+              decoration: deco(context, 'City', 'Enter your city',
+                  Icons.location_city_outlined),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'City is required' : null),
           const SizedBox(height: 32),
@@ -1107,7 +1148,7 @@ class _FormView extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kBlue,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: _kBorder,
+                disabledBackgroundColor: context.border,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26)),
@@ -1149,16 +1190,17 @@ class _SuccessView extends StatelessWidget {
                 color: _kGreen, size: 48),
           ),
           const SizedBox(height: 24),
-          const Text('Request Submitted!',
+          Text('Request Submitted!',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: _kTextDark)),
+                  color: context.textDark)),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Your Smart Card request has been received.\nWe\'ll process it and send it to your address within 5–7 business days.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: _kTextGrey, height: 1.5),
+            style:
+                TextStyle(fontSize: 14, color: context.textGrey, height: 1.5),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -1221,21 +1263,22 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
       });
   }
 
-  InputDecoration _deco(String label, String hint, IconData icon) {
+  InputDecoration _deco(
+      BuildContext context, String label, String hint, IconData icon) {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      prefixIcon: Icon(icon, color: _kTextGrey, size: 20),
+      prefixIcon: Icon(icon, color: context.textGrey, size: 20),
       filled: true,
-      fillColor: _kBg,
-      labelStyle: const TextStyle(color: _kTextGrey, fontSize: 13),
-      hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 13),
+      fillColor: context.fieldFill,
+      labelStyle: TextStyle(color: context.textGrey, fontSize: 13),
+      hintStyle: TextStyle(color: context.hintColor, fontSize: 13),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _kBorder)),
+          borderSide: BorderSide(color: context.border)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _kBorder)),
+          borderSide: BorderSide(color: context.border)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: _kRed, width: 1.5)),
@@ -1251,18 +1294,20 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: context.bg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: _kTextDark,
+        backgroundColor: context.appBarBg,
+        foregroundColor: context.textDark,
         elevation: 0,
-        title: const Text('Report Lost Card',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('Report Lost Card',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: context.textDark)),
         bottom: PreferredSize(
             preferredSize: const Size.fromHeight(1),
-            child: Container(color: _kBorder, height: 1)),
+            child: Container(color: context.border, height: 1)),
       ),
-      // ✅ التعديل هنا: بعت true لما يضغط Done
       body: _submitted
           ? _LostSuccessView(onDone: () => Navigator.pop(context, true))
           : SingleChildScrollView(
@@ -1272,6 +1317,7 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Warning banner
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -1294,16 +1340,16 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
                         ]),
                       ),
                       const SizedBox(height: 24),
-                      const Text('Your Information',
+                      Text('Your Information',
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: _kTextDark)),
+                              color: context.textDark)),
                       const SizedBox(height: 14),
                       TextFormField(
                           controller: _nameCtrl,
-                          decoration: _deco('Full Name', 'Enter your full name',
-                              Icons.person_outline),
+                          decoration: _deco(context, 'Full Name',
+                              'Enter your full name', Icons.person_outline),
                           validator: (v) => (v == null || v.trim().isEmpty)
                               ? 'Full name is required'
                               : null),
@@ -1311,8 +1357,8 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
                       TextFormField(
                           controller: _emailCtrl,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: _deco('Email Address', 'Enter your email',
-                              Icons.email_outlined),
+                          decoration: _deco(context, 'Email Address',
+                              'Enter your email', Icons.email_outlined),
                           validator: (v) {
                             if (v == null || v.trim().isEmpty)
                               return 'Email is required';
@@ -1323,22 +1369,23 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
                       TextFormField(
                           controller: _phoneCtrl,
                           keyboardType: TextInputType.phone,
-                          decoration: _deco('Phone Number',
+                          decoration: _deco(context, 'Phone Number',
                               'Enter your phone number', Icons.phone_outlined),
                           validator: (v) => (v == null || v.trim().isEmpty)
                               ? 'Phone number is required'
                               : null),
                       const SizedBox(height: 24),
-                      const Text('Additional Details',
+                      Text('Additional Details',
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: _kTextDark)),
+                              color: context.textDark)),
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: _notesCtrl,
                         maxLines: 3,
                         decoration: _deco(
+                                context,
                                 'Where did you lose it?',
                                 'e.g. Lost at Central Mall yesterday',
                                 Icons.location_on_outlined)
@@ -1353,7 +1400,7 @@ class _ReportLostCardScreenState extends State<ReportLostCardScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _kRed,
                             foregroundColor: Colors.white,
-                            disabledBackgroundColor: _kBorder,
+                            disabledBackgroundColor: context.border,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(26)),
@@ -1397,16 +1444,17 @@ class _LostSuccessView extends StatelessWidget {
                 color: _kRed, size: 48),
           ),
           const SizedBox(height: 24),
-          const Text('Card Blocked!',
+          Text('Card Blocked!',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: _kTextDark)),
+                  color: context.textDark)),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Your Smart Card has been blocked successfully.\nA replacement card request has been initiated and will arrive within 5–7 business days.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: _kTextGrey, height: 1.5),
+            style:
+                TextStyle(fontSize: 14, color: context.textGrey, height: 1.5),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -1437,18 +1485,20 @@ class _LostSuccessView extends StatelessWidget {
 class _Card extends StatelessWidget {
   final Widget child;
   const _Card({required this.child});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: context.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _kBorder),
+        border: Border.all(color: context.border),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color:
+                  Colors.black.withValues(alpha: context.isDark ? 0.15 : 0.03),
               blurRadius: 6,
               offset: const Offset(0, 2))
         ],
@@ -1474,10 +1524,12 @@ class _InfoRow extends StatelessWidget {
       Icon(icon, color: iconColor ?? _kBlue, size: 20),
       const SizedBox(width: 12),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: _kTextGrey)),
+        Text(label, style: TextStyle(fontSize: 11, color: context.textGrey)),
         Text(value,
-            style: const TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w600, color: _kTextDark)),
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: context.textDark)),
       ]),
     ]);
   }

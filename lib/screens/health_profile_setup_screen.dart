@@ -3,6 +3,32 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 
+// ── Theme-aware colour helpers ──────────────────────────────────────────────
+extension _Th on BuildContext {
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  Color get bg => isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FA);
+  Color get card => isDark ? const Color(0xFF1E1E1E) : Colors.white;
+  Color get border =>
+      isDark ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
+  Color get textPrimary =>
+      isDark ? const Color(0xFFF0F0F0) : const Color(0xFF1A1A2E);
+  Color get textSecond =>
+      isDark ? const Color(0xFF9E9E9E) : const Color(0xFF424242);
+  Color get textHint =>
+      isDark ? const Color(0xFF616161) : const Color(0xFFBDBDBD);
+  Color get fieldFill => isDark ? const Color(0xFF2A2A2A) : Colors.white;
+  Color get optionalBadgeBg =>
+      isDark ? const Color(0xFF1A2540) : const Color(0xFFF0F4FF);
+  Color get optionalBadgeBorder =>
+      isDark ? const Color(0xFF1565C0) : const Color(0xFFBBDEFB);
+}
+
+// ── Brand colours (unchanged in dark/light) ────────────────────────────────
+const _kBlue = Color(0xFF2196F3);
+const _kOrange = Color(0xFFF57C00);
+const _kRed = Color(0xFFEF5350);
+
 class HealthProfileSetupScreen extends StatefulWidget {
   final String firstName;
   const HealthProfileSetupScreen({super.key, required this.firstName});
@@ -87,7 +113,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
   void _showSnack(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      backgroundColor: const Color(0xFF2196F3),
+      backgroundColor: _kBlue,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ));
@@ -97,11 +123,11 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: context.bg,
       body: Form(
         key: _formKey,
         child: Column(children: [
-          // ── Progress header ──────────────────────────────────
+          // ── Progress header (gradient — stays same in dark/light)
           _ProgressHeader(firstName: widget.firstName),
 
           // ── Scrollable form ──────────────────────────────────
@@ -121,7 +147,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     isRequired: true,
                   ),
                   const SizedBox(height: 14),
-                  _WhiteCard(children: [
+                  _ThemedCard(children: [
                     Row(children: [
                       Expanded(
                         child: _NumericField(
@@ -171,7 +197,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     isRequired: true,
                   ),
                   const SizedBox(height: 14),
-                  _WhiteCard(children: [
+                  _ThemedCard(children: [
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -184,13 +210,10 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 18, vertical: 10),
                             decoration: BoxDecoration(
-                              color:
-                                  sel ? const Color(0xFF2196F3) : Colors.white,
+                              color: sel ? _kBlue : context.fieldFill,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: sel
-                                    ? const Color(0xFF2196F3)
-                                    : const Color(0xFFE0E0E0),
+                                color: sel ? _kBlue : context.border,
                                 width: 1.5,
                               ),
                             ),
@@ -199,9 +222,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: sel
-                                    ? Colors.white
-                                    : const Color(0xFF1A1A2E),
+                                color: sel ? Colors.white : context.textPrimary,
                               ),
                             ),
                           ),
@@ -225,7 +246,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     subtitle: 'Select all that apply',
                   ),
                   const SizedBox(height: 14),
-                  _WhiteCard(children: [
+                  _ThemedCard(children: [
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -239,23 +260,18 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                                 ? _selectedDiseases.add(d)
                                 : _selectedDiseases.remove(d);
                           }),
-                          selectedColor:
-                              const Color(0xFF2196F3).withOpacity(0.15),
-                          checkmarkColor: const Color(0xFF2196F3),
+                          selectedColor: _kBlue.withOpacity(0.15),
+                          checkmarkColor: _kBlue,
+                          backgroundColor: context.fieldFill,
                           labelStyle: TextStyle(
                             fontSize: 13,
-                            color: sel
-                                ? const Color(0xFF2196F3)
-                                : const Color(0xFF424242),
+                            color: sel ? _kBlue : context.textSecond,
                             fontWeight:
                                 sel ? FontWeight.w600 : FontWeight.normal,
                           ),
                           side: BorderSide(
-                            color: sel
-                                ? const Color(0xFF2196F3)
-                                : const Color(0xFFE0E0E0),
+                            color: sel ? _kBlue : context.border,
                           ),
-                          backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 4, vertical: 2),
                         );
@@ -265,8 +281,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                       const SizedBox(height: 10),
                       Text(
                         '${_selectedDiseases.length} selected',
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF2196F3)),
+                        style: const TextStyle(fontSize: 12, color: _kBlue),
                       ),
                     ],
                   ]),
@@ -282,7 +297,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     subtitle: 'Select all that apply',
                   ),
                   const SizedBox(height: 14),
-                  _WhiteCard(children: [
+                  _ThemedCard(children: [
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -298,21 +313,18 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                           }),
                           selectedColor:
                               const Color(0xFFFFA726).withOpacity(0.15),
-                          checkmarkColor: const Color(0xFFF57C00),
+                          checkmarkColor: _kOrange,
+                          backgroundColor: context.fieldFill,
                           labelStyle: TextStyle(
                             fontSize: 13,
-                            color: sel
-                                ? const Color(0xFFF57C00)
-                                : const Color(0xFF424242),
+                            color: sel ? _kOrange : context.textSecond,
                             fontWeight:
                                 sel ? FontWeight.w600 : FontWeight.normal,
                           ),
                           side: BorderSide(
-                            color: sel
-                                ? const Color(0xFFFFA726)
-                                : const Color(0xFFE0E0E0),
+                            color:
+                                sel ? const Color(0xFFFFA726) : context.border,
                           ),
-                          backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 4, vertical: 2),
                         );
@@ -331,7 +343,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     subtitle: 'Shown on your Smart Card in emergencies',
                   ),
                   const SizedBox(height: 14),
-                  _WhiteCard(children: [
+                  _ThemedCard(children: [
                     _SimpleField(
                       label: 'Contact Name',
                       hint: 'Full name',
@@ -357,30 +369,31 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     subtitle: 'For reports and notifications',
                   ),
                   const SizedBox(height: 14),
-                  _WhiteCard(children: [
+                  _ThemedCard(children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFE0E0E0)),
+                        border: Border.all(color: context.border),
                         borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
+                        color: context.fieldFill,
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _preferredLang,
                           isExpanded: true,
-                          hint: const Text('Select language',
+                          dropdownColor: context.card,
+                          hint: Text('Select language',
                               style: TextStyle(
-                                  color: Color(0xFFBDBDBD), fontSize: 14)),
-                          icon: const Icon(Icons.keyboard_arrow_down,
-                              color: Color(0xFF9E9E9E)),
+                                  color: context.textHint, fontSize: 14)),
+                          icon: Icon(Icons.keyboard_arrow_down,
+                              color: context.textSecond),
                           items: _languages
                               .map((l) => DropdownMenuItem(
                                     value: l,
                                     child: Text(l,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontSize: 14,
-                                            color: Color(0xFF1A1A2E))),
+                                            color: context.textPrimary)),
                                   ))
                               .toList(),
                           onChanged: (v) => setState(() => _preferredLang = v),
@@ -398,7 +411,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                     child: ElevatedButton(
                       onPressed: _loading ? null : _save,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2196F3),
+                        backgroundColor: _kBlue,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -437,12 +450,13 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
                               context, '/main', (_) => false);
                         }
                       },
-                      child: const Text(
+                      child: Text(
                         'Skip for now',
                         style: TextStyle(
-                            color: Color(0xFF9E9E9E),
+                            color: context.textSecond,
                             fontSize: 14,
-                            decoration: TextDecoration.underline),
+                            decoration: TextDecoration.underline,
+                            decorationColor: context.textSecond),
                       ),
                     ),
                   ),
@@ -457,7 +471,7 @@ class _HealthProfileSetupScreenState extends State<HealthProfileSetupScreen> {
   }
 }
 
-// ── Progress header ──────────────────────────────────────────
+// ── Progress header (gradient — stays same in dark/light) ────────────────────
 class _ProgressHeader extends StatelessWidget {
   final String firstName;
   const _ProgressHeader({required this.firstName});
@@ -480,7 +494,6 @@ class _ProgressHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Step indicator
               Row(children: [
                 _StepDot(active: true, done: true, label: '1'),
                 _StepLine(active: true),
@@ -489,18 +502,14 @@ class _ProgressHeader extends StatelessWidget {
                 _StepDot(active: false, done: false, label: '3'),
               ]),
               const SizedBox(height: 14),
-              Text(
-                'Hi $firstName! 👋',
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
+              Text('Hi $firstName! 👋',
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
               const SizedBox(height: 4),
-              const Text(
-                'Complete your health profile for accurate results',
-                style: TextStyle(fontSize: 13, color: Colors.white70),
-              ),
+              const Text('Complete your health profile for accurate results',
+                  style: TextStyle(fontSize: 13, color: Colors.white70)),
             ],
           ),
         ),
@@ -510,8 +519,7 @@ class _ProgressHeader extends StatelessWidget {
 }
 
 class _StepDot extends StatelessWidget {
-  final bool active;
-  final bool done;
+  final bool active, done;
   final String label;
   const _StepDot(
       {required this.active, required this.done, required this.label});
@@ -527,13 +535,12 @@ class _StepDot extends StatelessWidget {
       ),
       child: Center(
         child: done
-            ? const Icon(Icons.check_rounded,
-                size: 16, color: Color(0xFF2196F3))
+            ? const Icon(Icons.check_rounded, size: 16, color: _kBlue)
             : Text(label,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: active ? const Color(0xFF2196F3) : Colors.white,
+                  color: active ? _kBlue : Colors.white,
                 )),
       ),
     );
@@ -559,8 +566,7 @@ class _StepLine extends StatelessWidget {
 // ── Section header ───────────────────────────────────────────
 class _SectionHeader extends StatelessWidget {
   final IconData icon;
-  final String title;
-  final String subtitle;
+  final String title, subtitle;
   final bool isRequired;
 
   const _SectionHeader({
@@ -576,42 +582,40 @@ class _SectionHeader extends StatelessWidget {
       Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF2196F3).withOpacity(0.1),
+          color: _kBlue.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: const Color(0xFF2196F3), size: 20),
+        child: Icon(icon, color: _kBlue, size: 20),
       ),
       const SizedBox(width: 12),
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A2E))),
+                    color: context.textPrimary)),
             if (isRequired) ...[
               const SizedBox(width: 4),
               const Text(' *',
                   style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFEF5350))),
+                      fontSize: 14, fontWeight: FontWeight.bold, color: _kRed)),
             ],
           ]),
           const SizedBox(height: 2),
           Text(subtitle,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E))),
+              style: TextStyle(fontSize: 12, color: context.textSecond)),
         ]),
       ),
     ]);
   }
 }
 
-// ── White card wrapper ───────────────────────────────────────
-class _WhiteCard extends StatelessWidget {
+// ── Themed card wrapper ──────────────────────────────────────
+class _ThemedCard extends StatelessWidget {
   final List<Widget> children;
-  const _WhiteCard({required this.children});
+  const _ThemedCard({required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -619,12 +623,12 @@ class _WhiteCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE8E8E8)),
+        border: Border.all(color: context.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(context.isDark ? 0.15 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -638,9 +642,7 @@ class _WhiteCard extends StatelessWidget {
 
 // ── Numeric input with unit ──────────────────────────────────
 class _NumericField extends StatelessWidget {
-  final String label;
-  final String hint;
-  final String unit;
+  final String label, hint, unit;
   final TextEditingController controller;
   final String? Function(String?)? validator;
 
@@ -656,49 +658,43 @@ class _NumericField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF424242))),
+              color: context.textSecond)),
       const SizedBox(height: 8),
       TextFormField(
         controller: controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))],
         validator: validator,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A2E)),
+            color: context.textPrimary),
         textAlign: TextAlign.center,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 15),
+          hintStyle: TextStyle(color: context.textHint, fontSize: 15),
           suffixText: unit,
           suffixStyle: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF2196F3),
-              fontWeight: FontWeight.w500),
+              fontSize: 13, color: _kBlue, fontWeight: FontWeight.w500),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.fieldFill,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.border)),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.border)),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _kBlue, width: 1.5)),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFEF5350)),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _kRed)),
         ),
       ),
     ]);
@@ -707,8 +703,7 @@ class _NumericField extends StatelessWidget {
 
 // ── Simple text field ────────────────────────────────────────
 class _SimpleField extends StatelessWidget {
-  final String label;
-  final String hint;
+  final String label, hint;
   final TextEditingController controller;
   final TextInputType? keyboardType;
 
@@ -723,34 +718,31 @@ class _SimpleField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF424242))),
+              color: context.textSecond)),
       const SizedBox(height: 8),
       TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 15, color: Color(0xFF1A1A2E)),
+        style: TextStyle(fontSize: 15, color: context.textPrimary),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 14),
+          hintStyle: TextStyle(color: context.textHint, fontSize: 14),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: context.fieldFill,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.border)),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.border)),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
-          ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _kBlue, width: 1.5)),
         ),
       ),
     ]);
@@ -762,24 +754,22 @@ class _OptionalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+      Expanded(child: Divider(color: context.border)),
       Container(
         margin: const EdgeInsets.symmetric(horizontal: 12),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F4FF),
+          color: context.optionalBadgeBg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFBBDEFB)),
+          border: Border.all(color: context.optionalBadgeBorder),
         ),
         child: const Text(
           'Optional fields',
           style: TextStyle(
-              fontSize: 12,
-              color: Color(0xFF2196F3),
-              fontWeight: FontWeight.w500),
+              fontSize: 12, color: _kBlue, fontWeight: FontWeight.w500),
         ),
       ),
-      const Expanded(child: Divider(color: Color(0xFFE0E0E0))),
+      Expanded(child: Divider(color: context.border)),
     ]);
   }
 }

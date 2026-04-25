@@ -5,19 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
-import 'extra_screens.dart';
-// import 'support_chat_screen.dart';
-
-// ── Profile Prefs Keys ────────────────────────────────────────
-class _ProfileKeys {
-  static const name = 'profile_name';
-  static const email = 'profile_email';
-  static const phone = 'profile_phone';
-  static const dob = 'profile_dob';
-  static const gender = 'profile_gender';
-  static const emergName = 'profile_emerg_name';
-  static const emergPhone = 'profile_emerg_phone';
-}
+// import 'extra_screens.dart';
+import 'support_chat_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -43,13 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _name = prefs.getString(_ProfileKeys.name) ?? _name;
-      _email = prefs.getString(_ProfileKeys.email) ?? _email;
-      _phone = prefs.getString(_ProfileKeys.phone) ?? _phone;
-      _dob = prefs.getString(_ProfileKeys.dob) ?? _dob;
-      _gender = prefs.getString(_ProfileKeys.gender) ?? _gender;
-      _emergName = prefs.getString(_ProfileKeys.emergName) ?? _emergName;
-      _emergPhone = prefs.getString(_ProfileKeys.emergPhone) ?? _emergPhone;
+      _name = prefs.getString(PrefKeys.profileName) ?? _name;
+      _email = prefs.getString(PrefKeys.profileEmail) ?? _email;
+      _phone = prefs.getString(PrefKeys.profilePhone) ?? _phone;
+      _dob = prefs.getString(PrefKeys.profileDob) ?? _dob;
+      _gender = prefs.getString(PrefKeys.profileGender) ?? _gender;
+      _emergName = prefs.getString(PrefKeys.profileEmergName) ?? _emergName;
+      _emergPhone = prefs.getString(PrefKeys.profileEmergPhone) ?? _emergPhone;
     });
   }
 
@@ -92,10 +81,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withValues(alpha: 0.25),
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: Colors.white.withOpacity(0.5), width: 2),
+                      color: Colors.white.withValues(alpha: 0.25), width: 2),
                 ),
                 child: const Icon(Icons.person_outline,
                     color: Colors.white, size: 46),
@@ -257,17 +246,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _nameCtrl.text = prefs.getString(_ProfileKeys.name) ?? 'Alex Johnson';
+      _nameCtrl.text = prefs.getString(PrefKeys.profileName) ?? 'Alex Johnson';
       _emailCtrl.text =
-          prefs.getString(_ProfileKeys.email) ?? 'alex.johnson@email.com';
+          prefs.getString(PrefKeys.profileEmail) ?? 'alex.johnson@email.com';
       _phoneCtrl.text =
-          prefs.getString(_ProfileKeys.phone) ?? '+1 (555) 234-5678';
-      _dobCtrl.text = prefs.getString(_ProfileKeys.dob) ?? 'January 15, 1985';
-      _gender = prefs.getString(_ProfileKeys.gender) ?? 'Male';
+          prefs.getString(PrefKeys.profilePhone) ?? '+1 (555) 234-5678';
+      _dobCtrl.text =
+          prefs.getString(PrefKeys.profileDob) ?? 'January 15, 1985';
+      _gender = prefs.getString(PrefKeys.profileGender) ?? 'Male';
       _emergNameCtrl.text =
-          prefs.getString(_ProfileKeys.emergName) ?? 'Sarah Johnson';
+          prefs.getString(PrefKeys.profileEmergName) ?? 'Sarah Johnson';
       _emergPhoneCtrl.text =
-          prefs.getString(_ProfileKeys.emergPhone) ?? '+1 (555) 987-6543';
+          prefs.getString(PrefKeys.profileEmergPhone) ?? '+1 (555) 987-6543';
     });
   }
 
@@ -286,13 +276,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_ProfileKeys.name, _nameCtrl.text.trim());
-    await prefs.setString(_ProfileKeys.email, _emailCtrl.text.trim());
-    await prefs.setString(_ProfileKeys.phone, _phoneCtrl.text.trim());
-    await prefs.setString(_ProfileKeys.dob, _dobCtrl.text.trim());
-    await prefs.setString(_ProfileKeys.gender, _gender);
-    await prefs.setString(_ProfileKeys.emergName, _emergNameCtrl.text.trim());
-    await prefs.setString(_ProfileKeys.emergPhone, _emergPhoneCtrl.text.trim());
+    await prefs.setString(PrefKeys.profileName, _nameCtrl.text.trim());
+    await prefs.setString(PrefKeys.profileEmail, _emailCtrl.text.trim());
+    await prefs.setString(PrefKeys.profilePhone, _phoneCtrl.text.trim());
+    await prefs.setString(PrefKeys.profileDob, _dobCtrl.text.trim());
+    await prefs.setString(PrefKeys.profileGender, _gender);
+    await prefs.setString(
+        PrefKeys.profileEmergName, _emergNameCtrl.text.trim());
+    await prefs.setString(
+        PrefKeys.profileEmergPhone, _emergPhoneCtrl.text.trim());
     if (mounted) {
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -308,31 +300,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  InputDecoration _deco(String label, String hint, IconData icon) {
-    final c = AppColors();
+  // ✅ Dark mode: _deco تستقبل BuildContext وتسحب c.inputFill و c.divider من الثيم
+  InputDecoration _deco(
+    BuildContext context,
+    String label,
+    String hint,
+    IconData icon,
+  ) {
+    final c = context.colors;
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      prefixIcon: Icon(icon, color: const Color(0xFF757575), size: 20),
+      prefixIcon: Icon(icon, color: c.textSecond, size: 20),
       filled: true,
-      fillColor: const Color(0xFFF5F7FA),
-      labelStyle: const TextStyle(color: Color(0xFF757575), fontSize: 13),
-      hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 13),
+      fillColor: c.inputFill, // ✅ بدل Colors.white الثابت
+      labelStyle: TextStyle(color: c.textSecond, fontSize: 13),
+      hintStyle: TextStyle(color: c.textHint, fontSize: 13),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
+          borderSide: BorderSide(color: c.divider)), // ✅ بدل Color(0xFFE0E0E0)
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
+          borderSide: BorderSide(color: c.divider)), // ✅ بدل Color(0xFFE0E0E0)
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2196F3), width: 1.5)),
+          borderSide: BorderSide(color: c.primary, width: 1.5)),
       errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEF5350))),
+          borderSide: BorderSide(color: c.alertErr)),
       focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEF5350), width: 1.5)),
+          borderSide: BorderSide(color: c.alertErr, width: 1.5)),
     );
   }
 
@@ -418,8 +416,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextFormField(
               controller: _nameCtrl,
               style: TextStyle(color: c.textPrimary),
-              decoration: _deco(
-                  'Full Name', 'Enter your full name', Icons.person_outline),
+              // ✅ context مُمرر لـ _deco لسحب inputFill و divider من الثيم
+              decoration: _deco(context, 'Full Name', 'Enter your full name',
+                  Icons.person_outline),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'Name is required' : null,
             ),
@@ -429,8 +428,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
               style: TextStyle(color: c.textPrimary),
-              decoration:
-                  _deco('Email', 'Enter your email', Icons.email_outlined),
+              decoration: _deco(
+                  context, 'Email', 'Enter your email', Icons.email_outlined),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return 'Email is required';
                 if (!v.contains('@')) return 'Enter a valid email';
@@ -443,8 +442,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
               style: TextStyle(color: c.textPrimary),
-              decoration:
-                  _deco('Phone', 'Enter your phone', Icons.phone_outlined),
+              decoration: _deco(
+                  context, 'Phone', 'Enter your phone', Icons.phone_outlined),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'Phone is required' : null,
             ),
@@ -453,8 +452,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextFormField(
               controller: _dobCtrl,
               style: TextStyle(color: c.textPrimary),
-              decoration: _deco('Date of Birth', 'e.g. January 15, 1985',
-                  Icons.cake_outlined),
+              decoration: _deco(context, 'Date of Birth',
+                  'e.g. January 15, 1985', Icons.cake_outlined),
             ),
             const SizedBox(height: 14),
 
@@ -463,7 +462,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               value: _gender,
               dropdownColor: c.card,
               style: TextStyle(color: c.textPrimary, fontSize: 14),
-              decoration: _deco('Gender', '', Icons.person_2_outlined),
+              decoration: _deco(context, 'Gender', '', Icons.person_2_outlined),
               items: ['Male', 'Female', 'Other']
                   .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                   .toList(),
@@ -482,8 +481,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextFormField(
               controller: _emergNameCtrl,
               style: TextStyle(color: c.textPrimary),
-              decoration: _deco(
-                  'Contact Name', 'Enter contact name', Icons.person_outline),
+              decoration: _deco(context, 'Contact Name', 'Enter contact name',
+                  Icons.person_outline),
             ),
             const SizedBox(height: 14),
 
@@ -491,8 +490,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _emergPhoneCtrl,
               keyboardType: TextInputType.phone,
               style: TextStyle(color: c.textPrimary),
-              decoration: _deco(
-                  'Contact Phone', 'Enter contact phone', Icons.phone_outlined),
+              decoration: _deco(context, 'Contact Phone', 'Enter contact phone',
+                  Icons.phone_outlined),
             ),
             const SizedBox(height: 32),
 

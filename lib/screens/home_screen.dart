@@ -19,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -37,7 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text('Welcome back,',
-                          style: TextStyle(fontSize: 14, color: Colors.white70)),
+                          style:
+                              TextStyle(fontSize: 14, color: Colors.white70)),
                       SizedBox(height: 4),
                       Text('Alex Johnson',
                           style: TextStyle(
@@ -62,28 +62,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _HomeCard(
                       icon: Icons.favorite_border,
-                      iconColor: const Color(0xFF1976D2),
+                      iconColor: c.primary,
                       title: 'Vitals',
                       subtitle: 'Check your readings',
                       onTap: () => widget.onGoToVitals?.call(),
                     ),
                     _HomeCard(
                       icon: Icons.show_chart,
-                      iconColor: const Color(0xFF388E3C),
+                      iconColor: c.normalText,
                       title: 'Reports',
                       subtitle: 'View health reports',
                       onTap: () => widget.onGoToReports?.call(),
                     ),
                     _HomeCard(
                       icon: Icons.devices,
-                      iconColor: const Color(0xFF1976D2),
+                      iconColor: c.primary,
                       title: 'Machines',
                       subtitle: 'Find nearby devices',
                       onTap: () => widget.onGoToMachines?.call(),
                     ),
                     _HomeCard(
                       icon: Icons.favorite,
-                      iconColor: const Color(0xFFF9A825),
+                      iconColor: c.warningText,
                       title: 'Health Score',
                       subtitle: 'Your wellness score',
                       onTap: () => widget.onGoToVitals?.call(),
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         height: 120,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE3F2FD),
+                          color: c.infoBg,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
@@ -178,17 +178,17 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: [
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
                   style: TextStyle(
                       fontWeight: FontWeight.w600, color: c.textPrimary)),
-              Text(time,
-                  style: TextStyle(fontSize: 12, color: c.textSecond)),
+              Text(time, style: TextStyle(fontSize: 12, color: c.textSecond)),
             ]),
           ),
           Text(value,
-              style: TextStyle(
-                  fontWeight: FontWeight.w600, color: c.textPrimary)),
+              style:
+                  TextStyle(fontWeight: FontWeight.w600, color: c.textPrimary)),
           const SizedBox(width: 10),
           const StatusBadge(label: 'Normal', type: StatusType.normal),
         ],
@@ -242,8 +242,7 @@ class _HomeCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: c.textPrimary)),
             const SizedBox(height: 4),
-            Text(subtitle,
-                style: TextStyle(fontSize: 12, color: c.textSecond)),
+            Text(subtitle, style: TextStyle(fontSize: 12, color: c.textSecond)),
           ],
         ),
       ),

@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-
-// ── Global message store (persists while app is running) ──────
-final List<_Msg> _chatHistory = [
-  _Msg(
-      "Hi! I'm your SmartHealth assistant 👋\nHow can I help you today?", true),
-];
+import '../providers/app_state.dart';
 
 class SupportChatScreen extends StatefulWidget {
   const SupportChatScreen({super.key});
@@ -56,37 +52,55 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   void _send() {
     final t = _ctrl.text.trim();
     if (t.isEmpty) return;
-    setState(() {
-      _chatHistory.add(_Msg(t, false));
-      _ctrl.clear();
-      _isTyping = true;
-    });
+
+    final appState = context.read<AppState>();
+    appState.addChatMessage(ChatMessage(t, isBot: false));
+    _ctrl.clear();
+    setState(() => _isTyping = true);
     _scrollDown();
 
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
-      setState(() {
-        _isTyping = false;
-        _chatHistory.add(_Msg(_replies[_ri % _replies.length], true));
-        _ri++;
-      });
+      appState.addChatMessage(
+        ChatMessage(_replies[_ri % _replies.length], isBot: true),
+      );
+      _ri++;
+      setState(() => _isTyping = false);
       _scrollDown();
     });
   }
 
-  void _clearChat() {
-    setState(() {
-      _chatHistory.clear();
-      _chatHistory.add(_Msg(
-        "Hi! I'm your SmartHealth assistant 👋\nHow can I help you today?",
-        true,
-      ));
-    });
+  void _confirmClearChat() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Clear Chat',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to delete all messages?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AppState>().clearChat();
+            },
+            child:
+                const Text('Clear', style: TextStyle(color: Color(0xFFEF5350))),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final chatHistory = context.watch<AppState>().chatHistory;
+
     return Scaffold(
       backgroundColor: c.scaffold,
       appBar: AppBar(
@@ -133,31 +147,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             icon: const Icon(Icons.delete_outline_rounded,
                 color: Colors.white, size: 22),
             tooltip: 'Clear chat',
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                title: const Text('Clear Chat',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                content:
-                    const Text('Are you sure you want to delete all messages?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _clearChat();
-                    },
-                    child: const Text('Clear',
-                        style: TextStyle(color: Color(0xFFEF5350))),
-                  ),
-                ],
-              ),
-            ),
+            onPressed: _confirmClearChat,
           ),
         ],
       ),
@@ -167,12 +157,12 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
           child: ListView.builder(
             controller: _scrollCtrl,
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            itemCount: _chatHistory.length + (_isTyping ? 1 : 0),
+            itemCount: chatHistory.length + (_isTyping ? 1 : 0),
             itemBuilder: (_, i) {
-              if (_isTyping && i == _chatHistory.length) {
+              if (_isTyping && i == chatHistory.length) {
                 return const _TypingBubble();
               }
-              return _Bubble(msg: _chatHistory[i]);
+              return _Bubble(msg: chatHistory[i]);
             },
           ),
         ),
@@ -238,22 +228,16 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   }
 }
 
-// ── Message model ─────────────────────────────────────────────
-class _Msg {
-  final String text;
-  final bool isBot;
-  const _Msg(this.text, this.isBot);
-}
-
 // ── Chat bubble ───────────────────────────────────────────────
 class _Bubble extends StatelessWidget {
-  final _Msg msg;
+  final ChatMessage msg;
   const _Bubble({required this.msg});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return Align(
+      // ✅ Bot messages → Alignment.centerLeft | User messages → Alignment.centerRight
       alignment: msg.isBot ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -261,6 +245,7 @@ class _Bubble extends StatelessWidget {
         constraints:
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
         decoration: BoxDecoration(
+          // ✅ Dark mode fix: bot bubble → c.card | user bubble → c.primary
           color: msg.isBot ? c.card : c.primary,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(18),
@@ -280,6 +265,7 @@ class _Bubble extends StatelessWidget {
           msg.text,
           style: TextStyle(
             fontSize: 14,
+            // ✅ Bot text → c.textPrimary (adapts to dark/light) | User text → white (on primary color bg)
             color: msg.isBot ? c.textPrimary : Colors.white,
             height: 1.4,
           ),
@@ -338,6 +324,7 @@ class _TypingBubbleState extends State<_TypingBubble>
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
+          // ✅ Typing bubble uses c.card so it matches bot bubbles in dark mode
           color: c.card,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(18),

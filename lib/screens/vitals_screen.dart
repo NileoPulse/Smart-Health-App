@@ -3,12 +3,7 @@ import 'dart:math' as math;
 import '../theme/app_theme.dart';
 import 'session_report_screen.dart';
 
-// ── Status colors only (not theme-dependent) ──────────────────
-const _kBlue     = Color(0xFF2196F3);
-const _kBlueDark = Color(0xFF1565C0);
-const _kGreen    = Color(0xFF4CAF50);
-const _kOrange   = Color(0xFFFFA726);
-const _kRed      = Color(0xFFEF5350);
+// All colors now sourced from context.colors (AppColors)
 
 class VitalsScreen extends StatefulWidget {
   const VitalsScreen({super.key});
@@ -38,13 +33,7 @@ class _VitalsScreenState extends State<VitalsScreen> {
             // ── Blue Header ──────────────────────────────────
             SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [_kBlueDark, _kBlue],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
+                decoration: BoxDecoration(color: c.headerBg),
                 child: SafeArea(
                   bottom: false,
                   child: Padding(
@@ -59,7 +48,8 @@ class _VitalsScreenState extends State<VitalsScreen> {
                                 color: Colors.white)),
                         SizedBox(height: 4),
                         Text('Last synced: Today, 10:32 AM',
-                            style: TextStyle(fontSize: 13, color: Colors.white70)),
+                            style:
+                                TextStyle(fontSize: 13, color: Colors.white70)),
                       ],
                     ),
                   ),
@@ -92,7 +82,7 @@ class _VitalsScreenState extends State<VitalsScreen> {
                     Expanded(
                       child: _SmallVitalCard(
                         icon: Icons.thermostat_outlined,
-                        iconColor: const Color(0xFF1976D2),
+                        iconColor: c.primary,
                         title: 'Temperature',
                         value: '36.5',
                         unit: '°C',
@@ -104,7 +94,7 @@ class _VitalsScreenState extends State<VitalsScreen> {
                     Expanded(
                       child: _SmallVitalCard(
                         icon: Icons.favorite_border_rounded,
-                        iconColor: _kRed,
+                        iconColor: c.dangerText,
                         title: 'Pulse',
                         value: '72',
                         unit: 'bpm',
@@ -116,7 +106,7 @@ class _VitalsScreenState extends State<VitalsScreen> {
                     Expanded(
                       child: _SmallVitalCard(
                         icon: Icons.water_drop_outlined,
-                        iconColor: const Color(0xFF1976D2),
+                        iconColor: c.primary,
                         title: 'SpO₂',
                         value: '98',
                         unit: '%',
@@ -139,7 +129,7 @@ class _VitalsScreenState extends State<VitalsScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(25),
                     child: Column(children: [
-                      // Blue button
+                      // Primary button
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -154,7 +144,7 @@ class _VitalsScreenState extends State<VitalsScreen> {
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w600)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _kBlue,
+                            backgroundColor: c.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             shape: const RoundedRectangleBorder(
@@ -162,24 +152,24 @@ class _VitalsScreenState extends State<VitalsScreen> {
                           ),
                         ),
                       ),
-                      // Light blue description — no gap
+                      // Info description strip
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 10),
-                        color: const Color(0xFFBBDEFB),
+                        color: c.infoBg,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Icon(Icons.info_outline_rounded,
-                                color: Color(0xFF1565C0), size: 14),
-                            SizedBox(width: 6),
+                                color: c.infoText, size: 14),
+                            const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 'Reports include: vital sign history, trend analysis, health score breakdown, and AI-generated recommendations. Available in PDF and CSV formats.',
                                 style: TextStyle(
                                   fontSize: 11.5,
-                                  color: Color(0xFF1565C0),
+                                  color: c.infoText,
                                   height: 1.5,
                                 ),
                               ),
@@ -196,13 +186,12 @@ class _VitalsScreenState extends State<VitalsScreen> {
             ),
           ],
         ),
-
         Positioned(
           bottom: 16,
           right: 16,
           child: FloatingActionButton(
             onPressed: () {},
-            backgroundColor: _kBlue,
+            backgroundColor: c.primary,
             child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
           ),
         ),
@@ -218,10 +207,10 @@ class _HealthScoreCard extends StatelessWidget {
   final int score;
   const _HealthScoreCard({required this.score});
 
-  Color get _arcColor {
-    if (score >= 80) return _kGreen;
-    if (score >= 60) return _kOrange;
-    return _kRed;
+  Color _arcColor(AppColors c) {
+    if (score >= 80) return c.alertOk;
+    if (score >= 60) return c.alertWarn;
+    return c.alertErr;
   }
 
   String get _label {
@@ -257,7 +246,7 @@ class _HealthScoreCard extends StatelessWidget {
                 value: score / 100,
                 strokeWidth: 12,
                 backgroundColor: Colors.transparent,
-                valueColor: AlwaysStoppedAnimation<Color>(_arcColor),
+                valueColor: AlwaysStoppedAnimation<Color>(_arcColor(c)),
                 strokeCap: StrokeCap.round,
               ),
             ),
@@ -275,7 +264,9 @@ class _HealthScoreCard extends StatelessWidget {
         const SizedBox(height: 12),
         Text('Health Score',
             style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: c.textPrimary)),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: c.textPrimary)),
         const SizedBox(height: 8),
         _StatusBadge(label: _label, status: _VitalStatus.normal),
       ]),
@@ -297,14 +288,15 @@ class _MachineUpdateCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: _kBlue.withOpacity(0.1),
+            color: c.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(Icons.monitor_outlined, color: _kBlue, size: 22),
+          child: Icon(Icons.monitor_outlined, color: c.primary, size: 22),
         ),
         const SizedBox(width: 14),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Latest Machine Update',
                 style: TextStyle(
                     fontSize: 13,
@@ -321,12 +313,14 @@ class _MachineUpdateCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: _kGreen.withOpacity(0.1),
+            color: c.normalBg,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Text('Synced',
+          child: Text('Synced',
               style: TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600, color: _kGreen)),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: c.normalText)),
         ),
       ]),
     );
@@ -363,10 +357,11 @@ class _BloodPressureCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: purple.withOpacity(0.1),
+              color: purple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.water_drop_outlined, color: purple, size: 20),
+            child:
+                const Icon(Icons.water_drop_outlined, color: purple, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -411,7 +406,8 @@ class _BpValue extends StatelessWidget {
   final String label;
   final int value;
   final String unit;
-  const _BpValue({required this.label, required this.value, required this.unit});
+  const _BpValue(
+      {required this.label, required this.value, required this.unit});
 
   @override
   Widget build(BuildContext context) {
@@ -457,10 +453,11 @@ class _BloodSugarCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: _kOrange.withOpacity(0.1),
+              color: c.warningBg,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.bloodtype_outlined, color: _kOrange, size: 20),
+            child:
+                Icon(Icons.bloodtype_outlined, color: c.warningText, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -489,7 +486,7 @@ class _BloodSugarCard extends StatelessWidget {
           Text(_sugarLabel,
               style: TextStyle(
                   fontSize: 12,
-                  color: _statusColor(_status),
+                  color: _statusColor(_status, c),
                   fontWeight: FontWeight.w500)),
         ]),
         const SizedBox(height: 10),
@@ -497,7 +494,7 @@ class _BloodSugarCard extends StatelessWidget {
           height: 36,
           child: CustomPaint(
             size: const Size(double.infinity, 36),
-            painter: _MiniLinePainter(chartData, _kOrange, c.card),
+            painter: _MiniLinePainter(chartData, c.warningText, c.card),
           ),
         ),
       ]),
@@ -550,14 +547,13 @@ class _SmallVitalCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: c.textPrimary)),
               const SizedBox(width: 2),
-              Text(unit,
-                  style: TextStyle(fontSize: 9, color: c.textSecond)),
+              Text(unit, style: TextStyle(fontSize: 9, color: c.textSecond)),
             ]),
         const SizedBox(height: 6),
         Container(
           height: 5,
           decoration: BoxDecoration(
-            color: _statusColor(status).withOpacity(0.3),
+            color: _statusColor(status, c).withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(3),
           ),
           child: FractionallySizedBox(
@@ -565,7 +561,7 @@ class _SmallVitalCard extends StatelessWidget {
             widthFactor: 0.75,
             child: Container(
               decoration: BoxDecoration(
-                color: _statusColor(status),
+                color: _statusColor(status, c),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -575,7 +571,7 @@ class _SmallVitalCard extends StatelessWidget {
         Text(_statusLabel(status),
             style: TextStyle(
                 fontSize: 9,
-                color: _statusColor(status),
+                color: _statusColor(status, c),
                 fontWeight: FontWeight.w600)),
       ]),
     );
@@ -619,11 +615,12 @@ class _TrendsCard extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 160),
                   margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
-                    color: sel ? _kBlue : c.card,
+                    color: sel ? c.primary : c.card,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: sel ? _kBlue : c.divider),
+                    border: Border.all(color: sel ? c.primary : c.divider),
                   ),
                   child: Text(_tabs[i],
                       style: TextStyle(
@@ -650,19 +647,36 @@ class _TrendsCard extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════
 enum _VitalStatus { normal, warning, danger }
 
-Color _statusColor(_VitalStatus s) {
+Color _statusColor(_VitalStatus s, AppColors c) {
   switch (s) {
-    case _VitalStatus.normal:  return _kGreen;
-    case _VitalStatus.warning: return _kOrange;
-    case _VitalStatus.danger:  return _kRed;
+    case _VitalStatus.normal:
+      return c.normalText;
+    case _VitalStatus.warning:
+      return c.warningText;
+    case _VitalStatus.danger:
+      return c.dangerText;
+  }
+}
+
+Color _statusBg(_VitalStatus s, AppColors c) {
+  switch (s) {
+    case _VitalStatus.normal:
+      return c.normalBg;
+    case _VitalStatus.warning:
+      return c.warningBg;
+    case _VitalStatus.danger:
+      return c.dangerBg;
   }
 }
 
 String _statusLabel(_VitalStatus s) {
   switch (s) {
-    case _VitalStatus.normal:  return 'Normal';
-    case _VitalStatus.warning: return 'Warning';
-    case _VitalStatus.danger:  return 'High';
+    case _VitalStatus.normal:
+      return 'Normal';
+    case _VitalStatus.warning:
+      return 'Warning';
+    case _VitalStatus.danger:
+      return 'High';
   }
 }
 
@@ -673,16 +687,18 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _statusColor(status);
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: _statusBg(status, c),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(label,
           style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: _statusColor(status, c))),
     );
   }
 }
@@ -695,9 +711,7 @@ class _SectionLabel extends StatelessWidget {
     final c = context.colors;
     return Text(text,
         style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: c.textPrimary));
+            fontSize: 15, fontWeight: FontWeight.bold, color: c.textPrimary));
   }
 }
 
@@ -717,13 +731,6 @@ class _Card extends StatelessWidget {
         color: c.card,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: c.divider),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: child,
     );
@@ -734,10 +741,12 @@ class _PrimaryBtn extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
-  const _PrimaryBtn({required this.label, required this.icon, required this.onTap});
+  const _PrimaryBtn(
+      {required this.label, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return SizedBox(
       width: double.infinity,
       height: 50,
@@ -747,10 +756,11 @@ class _PrimaryBtn extends StatelessWidget {
         label: Text(label,
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _kBlue,
+          backgroundColor: c.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         ),
       ),
     );
@@ -782,7 +792,9 @@ class _MiniLinePainter extends CustomPainter {
         data.length,
         (i) => Offset(
               size.width * i / (data.length - 1),
-              size.height - (data[i] - min) / range * size.height * 0.8 - size.height * 0.1,
+              size.height -
+                  (data[i] - min) / range * size.height * 0.8 -
+                  size.height * 0.1,
             ));
 
     final path = Path()..moveTo(pts.first.dx, pts.first.dy);
@@ -800,7 +812,7 @@ class _MiniLinePainter extends CustomPainter {
       fill,
       Paint()
         ..shader = LinearGradient(
-          colors: [color.withOpacity(0.2), color.withOpacity(0.0)],
+          colors: [color.withValues(alpha: 0.2), color.withValues(alpha: 0.0)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
@@ -809,8 +821,18 @@ class _MiniLinePainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     for (final p in pts) {
-      canvas.drawCircle(p, 3, Paint()..color = color..style = PaintingStyle.fill);
-      canvas.drawCircle(p, 2, Paint()..color = dotCenter..style = PaintingStyle.fill);
+      canvas.drawCircle(
+          p,
+          3,
+          Paint()
+            ..color = color
+            ..style = PaintingStyle.fill);
+      canvas.drawCircle(
+          p,
+          2,
+          Paint()
+            ..color = dotCenter
+            ..style = PaintingStyle.fill);
     }
   }
 
@@ -862,8 +884,7 @@ class _FullLineChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: days
                 .map((d) => Text(d,
-                    style: const TextStyle(
-                        fontSize: 10, color: Color(0xFF757575))))
+                    style: TextStyle(fontSize: 10, color: c.textSecond)))
                 .toList(),
           ),
         ]),
@@ -884,7 +905,9 @@ class _BarChartPainter extends CustomPainter {
     if (data.isEmpty) return;
 
     // Grid lines
-    final gridPaint = Paint()..color = gridColor..strokeWidth = 0.8;
+    final gridPaint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 0.8;
     for (int i = 0; i <= 4; i++) {
       final y = size.height * i / 4;
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
@@ -937,8 +960,7 @@ class _BarChartPainter extends CustomPainter {
       // Value label on top of bar
       final textPainter = TextPainter(
         text: TextSpan(
-          text: data[i].toStringAsFixed(
-              data[i] % 1 == 0 ? 0 : 1),
+          text: data[i].toStringAsFixed(data[i] % 1 == 0 ? 0 : 1),
           style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.bold,

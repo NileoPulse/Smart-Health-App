@@ -21,46 +21,83 @@ class AppColors {
   final bool dark;
   const AppColors({this.dark = false});
 
-  // Blue primary — same in both modes
-  Color get primary      => const Color(0xFF2196F3);
-  Color get primaryDark  => const Color(0xFF1565C0);
+  // ── Primary Blue ────────────────────────────────────────────
+  // Dark mode: أزرق أكثر هدوءاً وأقل حدة لتجنب إجهاد العين
+  Color get primary => dark ? const Color(0xFF5BA4E5) : const Color(0xFF2196F3);
+  Color get primaryDark =>
+      dark ? const Color(0xFF3A7DC4) : const Color(0xFF1565C0);
 
-  // Backgrounds
-  Color get scaffold     => dark ? const Color(0xFF121212) : const Color(0xFFF5F7FA);
-  Color get surface      => dark ? const Color(0xFF1E1E1E) : Colors.white;
-  Color get card         => dark ? const Color(0xFF2A2A2A) : Colors.white;
-  Color get inputFill    => dark ? const Color(0xFF2C2C2C) : Colors.white;
-  Color get divider      => dark ? const Color(0xFF333333) : const Color(0xFFE0E0E0);
-  Color get headerBg     => dark ? const Color(0xFF1565C0) : const Color(0xFF1E88E5);
+  // ── Backgrounds (Elevation System) ──────────────────────────
+  // Level 0 – أعمق خلفية: رمادي داكن جداً وليس أسود صافي
+  Color get scaffold =>
+      dark ? const Color(0xFF121214) : const Color(0xFFF5F7FA);
+  // Level 1 – Surface أفتح بدرجة واحدة لإعطاء عمق (elevation)
+  Color get surface => dark ? const Color(0xFF1C1C1F) : Colors.white;
+  // Level 2 – Cards أفتح من Surface لتعطي إحساس الارتفاع البصري
+  Color get card => dark ? const Color(0xFF252528) : Colors.white;
+  // Level 3 – الحقول والـ Inputs أفتح بدرجة إضافية
+  Color get inputFill => dark ? const Color(0xFF2E2E32) : Colors.white;
 
-  // Text
-  Color get textPrimary  => dark ? Colors.white        : const Color(0xFF1A1A2E);
-  Color get textSecond   => dark ? const Color(0xFFAAAAAA) : const Color(0xFF757575);
-  Color get textHint     => dark ? const Color(0xFF666666) : const Color(0xFFBDBDBD);
-  Color get textBlue     => const Color(0xFF2196F3);
+  Color get divider => dark ? const Color(0xFF38383C) : const Color(0xFFE0E0E0);
+  Color get headerBg =>
+      dark ? const Color(0xFF1A3A5C) : const Color(0xFF1E88E5);
 
-  // Status
-  Color get normalBg     => dark ? const Color(0xFF1B3A2A) : const Color(0xFFE8F5E9);
-  Color get normalText   => const Color(0xFF388E3C);
-  Color get warningBg    => dark ? const Color(0xFF3A2E10) : const Color(0xFFFFF8E1);
-  Color get warningText  => const Color(0xFFF57F17);
-  Color get dangerBg     => dark ? const Color(0xFF3A1515) : const Color(0xFFFFEBEE);
-  Color get dangerText   => const Color(0xFFD32F2F);
-  Color get infoBg       => dark ? const Color(0xFF0D2137) : const Color(0xFFE3F2FD);
-  Color get infoText     => const Color(0xFF1565C0);
+  // ── Typography (Off-white لتجنب إجهاد العين) ─────────────────
+  // عناوين: أبيض مطفأ بدلاً من #FFFFFF الصارخ
+  Color get textPrimary =>
+      dark ? const Color(0xFFE8E8EA) : const Color(0xFF1A1A2E);
+  // نص ثانوي: رمادي فاتح مقروء
+  Color get textSecond =>
+      dark ? const Color(0xFF9A9A9E) : const Color(0xFF757575);
+  // نص Hint: رمادي أكثر خفوتاً
+  Color get textHint =>
+      dark ? const Color(0xFF5C5C60) : const Color(0xFFBDBDBD);
+  Color get textBlue =>
+      dark ? const Color(0xFF5BA4E5) : const Color(0xFF2196F3);
 
-  // Alert borders
-  Color get alertWarn    => const Color(0xFFFFA726);
-  Color get alertOk      => const Color(0xFF4CAF50);
-  Color get alertErr     => const Color(0xFFEF5350);
-  Color get alertInfo    => const Color(0xFF42A5F5);
+  // ── Status Colors (Pastel في الدارك مود) ─────────────────────
+  // Normal / Success — أخضر Pastel هادئ
+  Color get normalBg =>
+      dark ? const Color(0xFF1A2D22) : const Color(0xFFE8F5E9);
+  Color get normalText =>
+      dark ? const Color(0xFF6DBF85) : const Color(0xFF388E3C);
 
-  Color get available    => const Color(0xFF4CAF50);
-  Color get offline      => const Color(0xFFEF5350);
-  Color get chartLine    => const Color(0xFF1976D2);
+  // Warning — أصفر/برتقالي Pastel هادئ
+  Color get warningBg =>
+      dark ? const Color(0xFF2C2415) : const Color(0xFFFFF8E1);
+  Color get warningText =>
+      dark ? const Color(0xFFD4A847) : const Color(0xFFF57F17);
 
-  // Toggle
-  Color get toggleActive => const Color(0xFF2196F3);
+  // Danger — أحمر Pastel هادئ (ليس صارخاً)
+  Color get dangerBg =>
+      dark ? const Color(0xFF2A1A1A) : const Color(0xFFFFEBEE);
+  Color get dangerText =>
+      dark ? const Color(0xFFCF7070) : const Color(0xFFD32F2F);
+
+  // Info — أزرق Pastel هادئ
+  Color get infoBg => dark ? const Color(0xFF152233) : const Color(0xFFE3F2FD);
+  Color get infoText =>
+      dark ? const Color(0xFF5B9BD5) : const Color(0xFF1565C0);
+
+  // ── Alert Borders (مخففة في الدارك) ──────────────────────────
+  Color get alertWarn =>
+      dark ? const Color(0xFFB8922A) : const Color(0xFFFFA726);
+  Color get alertOk => dark ? const Color(0xFF4A9E5E) : const Color(0xFF4CAF50);
+  Color get alertErr =>
+      dark ? const Color(0xFFB85555) : const Color(0xFFEF5350);
+  Color get alertInfo =>
+      dark ? const Color(0xFF4A85B8) : const Color(0xFF42A5F5);
+
+  // ── Indicators ───────────────────────────────────────────────
+  Color get available =>
+      dark ? const Color(0xFF4A9E5E) : const Color(0xFF4CAF50);
+  Color get offline => dark ? const Color(0xFFB85555) : const Color(0xFFEF5350);
+  Color get chartLine =>
+      dark ? const Color(0xFF4A85C8) : const Color(0xFF1976D2);
+
+  // ── Toggle ───────────────────────────────────────────────────
+  Color get toggleActive =>
+      dark ? const Color(0xFF5BA4E5) : const Color(0xFF2196F3);
 }
 
 extension AppColorsContext on BuildContext {
@@ -89,14 +126,14 @@ ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color(0xFF2196F3),
+    seedColor: const Color(0xFF5BA4E5),
     brightness: Brightness.dark,
   ),
-  scaffoldBackgroundColor: const Color(0xFF121212),
-  cardColor: const Color(0xFF1E1E1E),
+  scaffoldBackgroundColor: const Color(0xFF121214),
+  cardColor: const Color(0xFF252528),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF1E1E1E),
-    foregroundColor: Colors.white,
+    backgroundColor: Color(0xFF1C1C1F),
+    foregroundColor: Color(0xFFE8E8EA),
     elevation: 0,
   ),
 );
