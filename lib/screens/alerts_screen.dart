@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
+import '../services/mock_data.dart';
+import '../models/models.dart';
 
 enum _Filter { all, health, system }
-
-enum _AType { warning, success, danger, info }
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -19,62 +19,22 @@ class _AlertsScreenState extends State<AlertsScreen> {
   @override
   void initState() {
     super.initState();
-    // Simulate loading — هيتبدل بـ API call مع الباك اند
     Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) setState(() => _loading = false);
     });
   }
 
-  final List<_Alert> _items = [
-    _Alert(
-        _AType.warning,
-        'Elevated Temperature',
-        'Your temperature reading of 37.8°C is slightly above normal.',
-        'Today, 11:20 AM',
-        'Monitor and rest',
-        _Filter.health),
-    _Alert(
-        _AType.success,
-        'Heart Rate Normal',
-        'Your heart rate is within the healthy range (72 bpm).',
-        'Today, 10:32 AM',
-        null,
-        _Filter.health),
-    _Alert(
-        _AType.info,
-        'Machine Sync Complete',
-        'Your vitals have been synced with Machine #MH-042.',
-        'Today, 10:30 AM',
-        null,
-        _Filter.system),
-    _Alert(
-        _AType.danger,
-        'Low SpO₂ Detected',
-        'SpO₂ reading of 93% detected. Please consult a healthcare provider.',
-        'Yesterday, 3:15 PM',
-        'Seek medical advice',
-        _Filter.health),
-    _Alert(
-        _AType.warning,
-        'Machine Offline',
-        'Machine #MH-018 at Central Park is currently offline.',
-        'Yesterday, 1:00 PM',
-        null,
-        _Filter.system),
-    _Alert(
-        _AType.info,
-        'Profile Updated',
-        'Your health profile was successfully updated.',
-        '2 days ago',
-        null,
-        _Filter.system),
-  ];
+  late final List<AlertModel> _items = MockDataService.alerts;
 
-  List<_Alert> get _shown => _filter == _Filter.all
+  List<AlertModel> get _shown => _filter == _Filter.all
       ? _items
-      : _items.where((a) => a.cat == _filter).toList();
+      : _items.where((a) {
+          if (_filter == _Filter.health)
+            return a.category == AlertCategory.health;
+          return a.category == AlertCategory.system;
+        }).toList();
 
-  void _dismiss(_Alert alert) {
+  void _dismiss(AlertModel alert) {
     setState(() => _items.remove(alert));
   }
 
@@ -98,10 +58,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
             Text('${_items.length} active notifications',
                 style: const TextStyle(fontSize: 13, color: Colors.white70)),
             const SizedBox(height: 14),
-            
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
               child: Row(children: [
                 _fBtn('All', _Filter.all),
                 const SizedBox(width: 8),
@@ -165,7 +123,6 @@ class _AlertsScreenState extends State<AlertsScreen> {
     return GestureDetector(
       onTap: () => setState(() => _filter = f),
       child: Container(
-        
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: sel ? Colors.white : Colors.transparent,
@@ -183,7 +140,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
 }
 
 class _AlertCard extends StatelessWidget {
-  final _Alert item;
+  final AlertModel item;
   final VoidCallback onDismiss;
   const _AlertCard({super.key, required this.item, required this.onDismiss});
 
@@ -193,22 +150,22 @@ class _AlertCard extends StatelessWidget {
     Color border, iconBg, iconColor;
     IconData iconData;
     switch (item.type) {
-      case _AType.warning:
+      case AlertType.warning:
         border = c.alertWarn;
         iconBg = c.warningBg;
         iconColor = c.alertWarn;
         iconData = Icons.warning_amber_rounded;
-      case _AType.success:
+      case AlertType.success:
         border = c.alertOk;
         iconBg = c.normalBg;
         iconColor = c.alertOk;
         iconData = Icons.check_circle_outline_rounded;
-      case _AType.danger:
+      case AlertType.danger:
         border = c.alertErr;
         iconBg = c.dangerBg;
         iconColor = c.alertErr;
         iconData = Icons.cancel_outlined;
-      case _AType.info:
+      case AlertType.info:
         border = c.alertInfo;
         iconBg = c.infoBg;
         iconColor = c.alertInfo;
@@ -237,7 +194,7 @@ class _AlertCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: c.textPrimary)),
           const SizedBox(height: 4),
-          Text(item.msg,
+          Text(item.message,
               style: TextStyle(fontSize: 13, color: c.textSecond, height: 1.4)),
           const SizedBox(height: 6),
           Text(item.time, style: TextStyle(fontSize: 12, color: c.textHint)),
@@ -260,13 +217,4 @@ class _AlertCard extends StatelessWidget {
       ]),
     );
   }
-}
-
-class _Alert {
-  final _AType type;
-  final String title, msg, time;
-  final String? action;
-  final _Filter cat;
-  const _Alert(
-      this.type, this.title, this.msg, this.time, this.action, this.cat);
 }

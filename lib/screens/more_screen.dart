@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
-import 'dart:typed_data';
-import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../providers/app_state.dart';
 import '../widgets/widgets.dart';
+import '../services/share_helper.dart';
 
-// extra_screens.dart بيضم: EmergencyQrScreen, RequestSmartCardScreen,
-// ReportLostCardScreen — بنديه alias عشان نفصله عن
-// support_chat_screen.dart اللي فيه نسخة قديمة بنفس الاسم.
 import 'extra_screens.dart' as extra;
 
-// دي النسخة الذكية اللي بتستخدم AppState.chatHistory
 import 'support_chat_screen.dart';
 
 class MoreScreen extends StatefulWidget {
@@ -417,8 +408,6 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
             ]),
           ),
           const SizedBox(height: 20),
-
-          // ✅ Request Smart Card - result check
           _SmartCardTile(
             key: ValueKey('request_$_isRequestPending'),
             icon: Icons.add_card_outlined,
@@ -456,8 +445,6 @@ class _SmartCardServicesScreenState extends State<SmartCardServicesScreen> {
                   },
           ),
           const SizedBox(height: 14),
-
-          // ✅ Report Lost Card - result check
           _SmartCardTile(
             key: ValueKey('lost_$_isCardBlocked'),
             icon: Icons.credit_card_off_outlined,
@@ -849,179 +836,22 @@ class _ReportCard extends StatelessWidget {
     );
   }
 
-  // ── بيولّد PDF ويفتح الـ share sheet ─────────────────────────
   void _share(BuildContext context, _Report report) async {
-    try {
-      final bytes = await _buildPdf(report);
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/SmartHealth_Report.pdf');
-      await file.writeAsBytes(bytes);
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: 'application/pdf')],
-        subject: 'SmartHealth - ${report.title}',
-      );
-    } catch (_) {}
-  }
-
-  // ── PDF builder ───────────────────────────────────────────────
-  static Future<Uint8List> _buildPdf(_Report r) async {
-    final doc = pw.Document();
-    const blue = PdfColor.fromInt(0xFF2196F3);
-    const blueDark = PdfColor.fromInt(0xFF1565C0);
-    const textDark = PdfColor.fromInt(0xFF1A1A2E);
-    const textGrey = PdfColor.fromInt(0xFF757575);
-    const bgLight = PdfColor.fromInt(0xFFF5F7FA);
-    const bd = PdfColor.fromInt(0xFFE0E0E0);
-    const white = PdfColors.white;
-
-    PdfColor sc;
-    if (r.score >= 80)
-      sc = PdfColor.fromInt(0xFF4CAF50);
-    else if (r.score >= 60)
-      sc = PdfColor.fromInt(0xFFFFA726);
-    else
-      sc = PdfColor.fromInt(0xFFEF5350);
-
-    pw.Widget vRow(String label, String val, String unit) => pw.Container(
-          margin: const pw.EdgeInsets.only(bottom: 8),
-          padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: pw.BoxDecoration(
-            color: white,
-            borderRadius: pw.BorderRadius.circular(10),
-            border: pw.Border.all(color: bd),
-          ),
-          child: pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.Text(label,
-                  style: pw.TextStyle(
-                      fontSize: 12,
-                      fontWeight: pw.FontWeight.bold,
-                      color: textDark)),
-              pw.Text('$val $unit',
-                  style: pw.TextStyle(
-                      fontSize: 12,
-                      fontWeight: pw.FontWeight.bold,
-                      color: textDark)),
-            ],
-          ),
-        );
-
-    doc.addPage(pw.Page(
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(32),
-      build: (_) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          // Header
-          pw.Container(
-            padding: const pw.EdgeInsets.all(20),
-            decoration: pw.BoxDecoration(
-              gradient: pw.LinearGradient(
-                  colors: [blueDark, blue],
-                  begin: pw.Alignment.topLeft,
-                  end: pw.Alignment.bottomRight),
-              borderRadius: pw.BorderRadius.circular(12),
-            ),
-            child: pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text('SmartHealth Report',
-                          style: pw.TextStyle(
-                              fontSize: 20,
-                              fontWeight: pw.FontWeight.bold,
-                              color: white)),
-                      pw.SizedBox(height: 4),
-                      pw.Text(r.title,
-                          style: pw.TextStyle(fontSize: 13, color: white)),
-                      pw.Text(r.date,
-                          style: pw.TextStyle(fontSize: 11, color: white)),
-                      pw.Text(r.machine,
-                          style: pw.TextStyle(fontSize: 11, color: white)),
-                    ]),
-                pw.Container(
-                  width: 60,
-                  height: 60,
-                  decoration:
-                      pw.BoxDecoration(color: white, shape: pw.BoxShape.circle),
-                  child: pw.Center(
-                      child: pw.Column(
-                          mainAxisAlignment: pw.MainAxisAlignment.center,
-                          children: [
-                        pw.Text('${r.score}',
-                            style: pw.TextStyle(
-                                fontSize: 20,
-                                fontWeight: pw.FontWeight.bold,
-                                color: sc)),
-                        pw.Text('/100',
-                            style: pw.TextStyle(fontSize: 9, color: textGrey)),
-                      ])),
-                ),
-              ],
-            ),
-          ),
-          pw.SizedBox(height: 20),
-          // Status
-          pw.Container(
-            padding:
-                const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: pw.BoxDecoration(
-              color: bgLight,
-              borderRadius: pw.BorderRadius.circular(10),
-              border: pw.Border.all(color: bd),
-            ),
-            child: pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text('Health Status',
-                    style: pw.TextStyle(
-                        fontSize: 13,
-                        fontWeight: pw.FontWeight.bold,
-                        color: textDark)),
-                pw.Container(
-                  padding: const pw.EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 4),
-                  decoration: pw.BoxDecoration(
-                    color: PdfColor(sc.red, sc.green, sc.blue, 0.15),
-                    borderRadius: pw.BorderRadius.circular(20),
-                  ),
-                  child: pw.Text(r.status,
-                      style: pw.TextStyle(
-                          fontSize: 12,
-                          fontWeight: pw.FontWeight.bold,
-                          color: sc)),
-                ),
-              ],
-            ),
-          ),
-          pw.SizedBox(height: 20),
-          pw.Text('Vitals Summary',
-              style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
-                  color: textDark)),
-          pw.SizedBox(height: 10),
-          vRow('Blood Pressure', '120/80', 'mmHg'),
-          vRow('Blood Sugar', '98', 'mg/dL'),
-          vRow('Temperature', '36.5', 'C'),
-          vRow('Pulse Rate', '72', 'bpm'),
-          vRow('SpO2', '98', '%'),
-          pw.SizedBox(height: 24),
-          pw.Divider(color: bd),
-          pw.SizedBox(height: 8),
-          pw.Text(
-            'Generated by SmartHealth App - '
-            '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-            style: pw.TextStyle(fontSize: 10, color: textGrey),
-            textAlign: pw.TextAlign.center,
-          ),
-        ],
+    await ShareHelper.shareReport(
+      context,
+      ShareReportData(
+        title: report.title,
+        date: report.date,
+        machine: report.machine,
+        score: report.score,
+        status: report.status,
+        bp: '120/80',
+        sugar: '98',
+        temp: '36.5',
+        pulse: '72',
+        spo2: '98',
       ),
-    ));
-    return Uint8List.fromList(await doc.save());
+    );
   }
 }
 

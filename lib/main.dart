@@ -26,11 +26,8 @@ void main() async {
   await appState.load();
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: appState),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
+    ChangeNotifierProvider.value(
+      value: appState,
       child: const SmartHealthApp(),
     ),
   );
@@ -49,9 +46,7 @@ class SmartHealthApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: appState.isDark ? ThemeMode.dark : ThemeMode.light,
-
-      locale:
-          Locale(appState.language), // ده كفيل يخلي التطبيق RTL لو اللغة 'ar'
+      locale: Locale(appState.language),
       supportedLocales: const [
         Locale('en'),
         Locale('ar'),
@@ -62,7 +57,6 @@ class SmartHealthApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-
       initialRoute: appState.isLoggedIn ? '/main' : '/login',
       routes: {
         '/login': (_) => const LoginScreen(),
@@ -70,8 +64,13 @@ class SmartHealthApp extends StatelessWidget {
         '/main': (_) => const MainNavScreen(),
         '/profile': (_) => const ProfileScreen(),
         '/forgot-password': (_) => const ForgotPasswordScreen(),
-        '/health-setup': (_) =>
-            const HealthProfileSetupScreen(firstName: 'Mayar'),
+        '/health-setup': (ctx) {
+          final name =
+              context.read<AppState>().prefs?.getString(PrefKeys.profileName) ??
+                  '';
+          final firstName = name.split(' ').first;
+          return HealthProfileSetupScreen(firstName: firstName);
+        },
       },
     );
   }

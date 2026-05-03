@@ -237,7 +237,6 @@ class _Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Align(
-      // ✅ Bot messages → Alignment.centerLeft | User messages → Alignment.centerRight
       alignment: msg.isBot ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -245,7 +244,6 @@ class _Bubble extends StatelessWidget {
         constraints:
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
         decoration: BoxDecoration(
-          // ✅ Dark mode fix: bot bubble → c.card | user bubble → c.primary
           color: msg.isBot ? c.card : c.primary,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(18),
@@ -265,7 +263,6 @@ class _Bubble extends StatelessWidget {
           msg.text,
           style: TextStyle(
             fontSize: 14,
-            // ✅ Bot text → c.textPrimary (adapts to dark/light) | User text → white (on primary color bg)
             color: msg.isBot ? c.textPrimary : Colors.white,
             height: 1.4,
           ),
@@ -324,7 +321,6 @@ class _TypingBubbleState extends State<_TypingBubble>
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          // ✅ Typing bubble uses c.card so it matches bot bubbles in dark mode
           color: c.card,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(18),

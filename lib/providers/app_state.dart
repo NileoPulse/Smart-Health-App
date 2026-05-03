@@ -12,7 +12,7 @@ class PrefKeys {
   static const lastNavIndex = 'lastNavIndex';
 
   // ── Profile ────────────────────────────────────────
-  
+
   static const profileName = 'profile_name';
   static const profileEmail = 'profile_email';
   static const profilePhone = 'profile_phone';
@@ -22,13 +22,11 @@ class PrefKeys {
   static const profileEmergPhone = 'profile_emerg_phone';
 
   // ── Smart Card ────────────────────────────────────────
-  
+
   static const isRequestPending = 'isRequestPending';
   static const isCardBlocked = 'isCardBlocked';
   static const requestDate = 'requestDate';
   static const replacementDate = 'replacementDate';
-
-
 
   static const List<String> userKeys = [
     profileName,
@@ -42,7 +40,6 @@ class PrefKeys {
     isCardBlocked,
     requestDate,
     replacementDate,
-    
   ];
 }
 
@@ -65,6 +62,7 @@ class AppState extends ChangeNotifier {
   int _lastNavIndex = 0;
 
   SharedPreferences? _prefs;
+  SharedPreferences? get prefs => _prefs;
 
   bool get isLoggedIn => _isLoggedIn;
   bool get isDark => _isDark;
@@ -125,7 +123,7 @@ class AppState extends ChangeNotifier {
     // 1. Memory reset
     _isLoggedIn = false;
     _lastNavIndex = 0;
-    clearChat(); 
+    clearChat();
 
     if (_prefs != null) {
       for (final key in PrefKeys.userKeys) {

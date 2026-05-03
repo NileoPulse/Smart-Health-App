@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
-const _kBorder = Color(0xFFE0E0E0);
-const _kCard = Colors.white;
-const _kTextDark = Color(0xFF1A1A2E);
-const _kTextGrey = Color(0xFF757575);
-const _kBlue = Color(0xFF2196F3);
+import '../theme/app_theme.dart';
 
 // Card Widget
 class CustomCard extends StatelessWidget {
@@ -13,16 +8,17 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _kCard,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _kBorder),
+        border: Border.all(color: c.divider),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 6,
             offset: const Offset(0, 2),
           )
@@ -50,20 +46,20 @@ class InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
-        Icon(icon, color: iconColor ?? _kBlue, size: 20),
+        Icon(icon, color: iconColor ?? c.primary, size: 20),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-                style: const TextStyle(fontSize: 11, color: _kTextGrey)),
+            Text(label, style: TextStyle(fontSize: 11, color: c.textSecond)),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: _kTextDark)),
+                    color: c.textPrimary)),
           ],
         ),
       ],

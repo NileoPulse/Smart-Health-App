@@ -96,18 +96,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
     setState(() => _loading = true);
     await Future.delayed(const Duration(milliseconds: 1000));
-    if (mounted) {
-      await context.read<AppState>().login();
-      setState(() => _loading = false);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => HealthProfileSetupScreen(
-            firstName: _firstNameCtrl.text.trim(),
-          ),
+    if (!mounted) return;
+    await context.read<AppState>().login();
+    setState(() => _loading = false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HealthProfileSetupScreen(
+          firstName: _firstNameCtrl.text.trim(),
         ),
-      );
-    }
+      ),
+    );
   }
 
   void _showSnack(String msg) {
@@ -124,7 +123,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // ── Build ────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    // ✅ Dark mode: استخدام context.colors لتلوين الـ Scaffold
     final c = context.colors;
     return Scaffold(
       backgroundColor: c.scaffold,
@@ -238,18 +236,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: _dateOfBirth == null
-                                ? c.divider // ✅ بدل const Color(0xFFE0E0E0)
+                                ? c.divider
                                 : const Color(0xFF2196F3),
                           ),
                           borderRadius: BorderRadius.circular(10),
-                          color: c.inputFill, // ✅ بدل Colors.white
+                          color: c.inputFill,
                         ),
                         child: Row(children: [
                           Icon(
                             Icons.calendar_today_outlined,
                             size: 18,
                             color: _dateOfBirth == null
-                                ? c.textHint // ✅ بدل const Color(0xFFBDBDBD)
+                                ? c.textHint
                                 : const Color(0xFF2196F3),
                           ),
                           const SizedBox(width: 10),
@@ -258,8 +256,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             style: TextStyle(
                               fontSize: 15,
                               color: _dateOfBirth == null
-                                  ? c.textHint // ✅ بدل const Color(0xFFBDBDBD)
-                                  : c.textPrimary, // ✅ بدل const Color(0xFF1A1A2E)
+                                  ? c.textHint
+                                  : c.textPrimary,
                             ),
                           ),
                         ]),
@@ -321,10 +319,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     // ── Back to login ────────────────────────
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Text('Already have an account? ',
-                          style: TextStyle(
-                              // ✅ بدل const Color(0xFF757575)
-                              color: c.textSecond,
-                              fontSize: 14)),
+                          style: TextStyle(color: c.textSecond, fontSize: 14)),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
                         child: const Text('Sign In',
@@ -410,7 +405,6 @@ class _FormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Dark mode: نجيب الألوان من الثيم
     final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,25 +416,21 @@ class _FormField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: isPassword && !isVisible,
           validator: validator,
-          // ✅ بدل const TextStyle(fontSize: 15, color: Color(0xFF1A1A2E))
           style: TextStyle(fontSize: 15, color: c.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
-            // ✅ بدل const TextStyle(color: Color(0xFFBDBDBD), fontSize: 14)
             hintStyle: TextStyle(color: c.textHint, fontSize: 14),
             filled: true,
-            fillColor: c.inputFill, // ✅ بدل Colors.white
+            fillColor: c.inputFill,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  BorderSide(color: c.divider), // ✅ بدل Color(0xFFE0E0E0)
+              borderSide: BorderSide(color: c.divider),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  BorderSide(color: c.divider), // ✅ بدل Color(0xFFE0E0E0)
+              borderSide: BorderSide(color: c.divider),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -457,7 +447,7 @@ class _FormField extends StatelessWidget {
                       isVisible
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: c.textHint, // ✅ بدل const Color(0xFF9E9E9E)
+                      color: c.textHint,
                       size: 20,
                     ),
                     onPressed: onToggleVisibility,
@@ -477,7 +467,6 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Dark mode: بدل const Color(0xFF1A1A2E)
     final c = context.colors;
     return Text(
       text,
@@ -506,7 +495,6 @@ class _GenderChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Dark mode: بدل Colors.white في الخلفية غير المحددة
     final c = context.colors;
     return GestureDetector(
       onTap: onTap,
@@ -514,13 +502,10 @@ class _GenderChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          // ✅ بدل Colors.white — نستخدم c.card لدعم الـ Dark Mode
           color: selected ? const Color(0xFF2196F3) : c.card,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected
-                ? const Color(0xFF2196F3)
-                : c.divider, // ✅ بدل Color(0xFFE0E0E0)
+            color: selected ? const Color(0xFF2196F3) : c.divider,
             width: 1.5,
           ),
         ),
@@ -528,9 +513,7 @@ class _GenderChip extends StatelessWidget {
           Icon(
             icon,
             size: 20,
-            color: selected
-                ? Colors.white
-                : c.textSecond, // ✅ بدل Color(0xFF757575)
+            color: selected ? Colors.white : c.textSecond,
           ),
           const SizedBox(width: 6),
           Text(
@@ -538,9 +521,7 @@ class _GenderChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: selected
-                  ? Colors.white
-                  : c.textSecond, // ✅ بدل Color(0xFF757575)
+              color: selected ? Colors.white : c.textSecond,
             ),
           ),
         ]),

@@ -165,8 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ]),
           ),
-
-          // FAB والـ assistant انتقلوا للـ MainNavScreen
         ],
       ),
     );

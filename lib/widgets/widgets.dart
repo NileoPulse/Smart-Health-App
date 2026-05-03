@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
+import '../providers/app_state.dart';
 
 // ── SmartHealth Top App Bar ──────────────────────────────────
 class SmartHealthAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -21,26 +23,33 @@ class SmartHealthAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 32, height: 32,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: c.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.star_border_rounded, color: c.primary, size: 18),
+                    child: Icon(Icons.star_border_rounded,
+                        color: c.primary, size: 18),
                   ),
                   const SizedBox(width: 8),
                   Text('SmartHealth',
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: c.textPrimary)),
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: c.textPrimary)),
                   const Spacer(),
                   GestureDetector(
                     onTap: onProfileTap,
                     child: Container(
-                      width: 32, height: 32,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         border: Border.all(color: c.divider),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.person_outline, color: c.textSecond, size: 18),
+                      child: Icon(Icons.person_outline,
+                          color: c.textSecond, size: 18),
                     ),
                   ),
                 ],
@@ -75,7 +84,10 @@ class BlueHeader extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: child,
+      child: SafeArea(
+        bottom: false,
+        child: child,
+      ),
     );
   }
 }
@@ -89,8 +101,12 @@ class AppTextField extends StatefulWidget {
   final TextInputType? keyboardType;
 
   const AppTextField({
-    super.key, required this.label, required this.hint,
-    this.isPassword = false, this.controller, this.keyboardType,
+    super.key,
+    required this.label,
+    required this.hint,
+    this.isPassword = false,
+    this.controller,
+    this.keyboardType,
   });
 
   @override
@@ -105,7 +121,11 @@ class _AppTextFieldState extends State<AppTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.textPrimary)),
+        Text(widget.label,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: c.textPrimary)),
         const SizedBox(height: 8),
         TextField(
           controller: widget.controller,
@@ -117,19 +137,27 @@ class _AppTextFieldState extends State<AppTextField> {
             hintStyle: TextStyle(color: c.textHint),
             filled: true,
             fillColor: c.inputFill,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(color: c.divider)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10),
+            enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(color: c.divider)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(color: c.primary, width: 1.5)),
             suffixIcon: widget.isPassword
                 ? IconButton(
-              icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: c.textSecond, size: 20),
-              onPressed: () => setState(() => _obscure = !_obscure),
-            )
+                    icon: Icon(
+                        _obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: c.textSecond,
+                        size: 20),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                  )
                 : null,
           ),
         ),
@@ -143,23 +171,29 @@ class BluePrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final IconData? icon;
-  const BluePrimaryButton({super.key, required this.label, required this.onTap, this.icon});
+  const BluePrimaryButton(
+      {super.key, required this.label, required this.onTap, this.icon});
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return SizedBox(
-      width: double.infinity, height: 52,
+      width: double.infinity,
+      height: 52,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2196F3),
+          backgroundColor: c.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
-          Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         ]),
       ),
     );
@@ -179,15 +213,26 @@ class StatusBadge extends StatelessWidget {
     final c = context.colors;
     Color bg, text;
     switch (type) {
-      case StatusType.normal:  bg = c.normalBg;  text = c.normalText;
-      case StatusType.warning: bg = c.warningBg; text = c.warningText;
-      case StatusType.danger:  bg = c.dangerBg;  text = c.dangerText;
-      case StatusType.info:    bg = c.infoBg;    text = c.infoText;
+      case StatusType.normal:
+        bg = c.normalBg;
+        text = c.normalText;
+      case StatusType.warning:
+        bg = c.warningBg;
+        text = c.warningText;
+      case StatusType.danger:
+        bg = c.dangerBg;
+        text = c.dangerText;
+      case StatusType.info:
+        bg = c.infoBg;
+        text = c.infoText;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-      child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: text)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+      child: Text(label,
+          style: TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w600, color: text)),
     );
   }
 }
@@ -196,17 +241,31 @@ class StatusBadge extends StatelessWidget {
 class AppBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
-  const AppBottomNav({super.key, required this.currentIndex, required this.onTap});
+  const AppBottomNav(
+      {super.key, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     const items = [
-      _NavItem(icon: Icons.home_outlined,          activeIcon: Icons.home_rounded,            label: 'Home'),
-      _NavItem(icon: Icons.star_border_rounded,    activeIcon: Icons.star_rounded,            label: 'Vitals'),
-      _NavItem(icon: Icons.notifications_outlined, activeIcon: Icons.notifications_rounded,   label: 'Alerts'),
-      _NavItem(icon: Icons.monitor_outlined,       activeIcon: Icons.monitor_rounded,         label: 'Machines'),
-      _NavItem(icon: Icons.more_horiz,             activeIcon: Icons.more_horiz,              label: 'More'),
+      _NavItem(
+          icon: Icons.home_outlined,
+          activeIcon: Icons.home_rounded,
+          label: 'Home'),
+      _NavItem(
+          icon: Icons.star_border_rounded,
+          activeIcon: Icons.star_rounded,
+          label: 'Vitals'),
+      _NavItem(
+          icon: Icons.notifications_outlined,
+          activeIcon: Icons.notifications_rounded,
+          label: 'Alerts'),
+      _NavItem(
+          icon: Icons.monitor_outlined,
+          activeIcon: Icons.monitor_rounded,
+          label: 'Machines'),
+      _NavItem(
+          icon: Icons.more_horiz, activeIcon: Icons.more_horiz, label: 'More'),
     ];
     return Container(
       decoration: BoxDecoration(
@@ -224,16 +283,20 @@ class AppBottomNav extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () => onTap(i),
                   behavior: HitTestBehavior.opaque,
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(sel ? items[i].activeIcon : items[i].icon,
-                        color: sel ? c.primary : c.textSecond, size: 24),
-                    const SizedBox(height: 2),
-                    Text(items[i].label, style: TextStyle(
-                      fontSize: 11,
-                      color: sel ? c.primary : c.textSecond,
-                      fontWeight: sel ? FontWeight.w600 : FontWeight.normal,
-                    )),
-                  ]),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(sel ? items[i].activeIcon : items[i].icon,
+                            color: sel ? c.primary : c.textSecond, size: 24),
+                        const SizedBox(height: 2),
+                        Text(items[i].label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: sel ? c.primary : c.textSecond,
+                              fontWeight:
+                                  sel ? FontWeight.w600 : FontWeight.normal,
+                            )),
+                      ]),
                 ),
               );
             }),
@@ -247,7 +310,8 @@ class AppBottomNav extends StatelessWidget {
 class _NavItem {
   final IconData icon, activeIcon;
   final String label;
-  const _NavItem({required this.icon, required this.activeIcon, required this.label});
+  const _NavItem(
+      {required this.icon, required this.activeIcon, required this.label});
 }
 
 // ── Info row ─────────────────────────────────────────────────
@@ -256,7 +320,12 @@ class InfoDataRow extends StatelessWidget {
   final String label;
   final String value;
   final Color? iconColor;
-  const InfoDataRow({super.key, required this.icon, required this.label, required this.value, this.iconColor});
+  const InfoDataRow(
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.value,
+      this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +338,11 @@ class InfoDataRow extends StatelessWidget {
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: TextStyle(fontSize: 13, color: c.textSecond)),
           const SizedBox(height: 2),
-          Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: c.textPrimary)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: c.textPrimary)),
         ]),
       ]),
     );
@@ -294,7 +367,11 @@ class SectionCard extends StatelessWidget {
         border: Border.all(color: c.divider),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: c.textPrimary)),
+        Text(title,
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: c.textPrimary)),
         const SizedBox(height: 8),
         ...children,
       ]),
@@ -331,8 +408,9 @@ class SettingsRow extends StatelessWidget {
           child: Row(children: [
             Icon(icon, color: c.primary, size: 20),
             const SizedBox(width: 14),
-            Expanded(child: Text(label,
-                style: TextStyle(fontSize: 15, color: c.textPrimary))),
+            Expanded(
+                child: Text(label,
+                    style: TextStyle(fontSize: 15, color: c.textPrimary))),
             if (toggleValue != null)
               Switch(
                 value: toggleValue!,
@@ -359,13 +437,9 @@ class HealthAssistantOverlay extends StatefulWidget {
 }
 
 class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
-  final _ctrl       = TextEditingController();
+  final _ctrl = TextEditingController();
   final _scrollCtrl = ScrollController();
-  bool _isTyping    = false;
-
-  final List<_ChatMsg> _msgs = [
-    _ChatMsg(text: "Hi! I'm your SmartHealth assistant 👋\nHow can I help you today?", isBot: true),
-  ];
+  bool _isTyping = false;
 
   static const _botReplies = [
     "Based on your latest vitals, everything looks normal! Keep up the good work 💪",
@@ -375,6 +449,13 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
     "Try to get 7–8 hours of sleep for optimal health. Your heart rate looks great!",
   ];
   int _replyIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // scroll to bottom on open to show latest messages
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  }
 
   @override
   void dispose() {
@@ -398,23 +479,21 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
   void _send() {
     final text = _ctrl.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _msgs.add(_ChatMsg(text: text, isBot: false));
-      _ctrl.clear();
-      _isTyping = true;
-    });
+
+    final appState = context.read<AppState>();
+    appState.addChatMessage(ChatMessage(text, isBot: false));
+    _ctrl.clear();
+    setState(() => _isTyping = true);
     _scrollToBottom();
 
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
-      setState(() {
-        _isTyping = false;
-        _msgs.add(_ChatMsg(
-          text: _botReplies[_replyIndex % _botReplies.length],
-          isBot: true,
-        ));
-        _replyIndex++;
-      });
+      appState.addChatMessage(ChatMessage(
+        _botReplies[_replyIndex % _botReplies.length],
+        isBot: true,
+      ));
+      _replyIndex++;
+      setState(() => _isTyping = false);
       _scrollToBottom();
     });
   }
@@ -422,6 +501,9 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+
+    final chatHistory = context.watch<AppState>().chatHistory;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
@@ -449,7 +531,8 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
             ),
             child: Row(children: [
               Container(
-                width: 34, height: 34,
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
@@ -467,15 +550,15 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
                 Text(
                   _isTyping ? 'typing...' : 'Online',
                   style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 11),
+                      color: Colors.white.withValues(alpha: 0.8), fontSize: 11),
                 ),
               ]),
               const Spacer(),
               GestureDetector(
                 onTap: widget.onClose,
                 child: Container(
-                  width: 30, height: 30,
+                  width: 30,
+                  height: 30,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
@@ -492,12 +575,15 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
             child: ListView.builder(
               controller: _scrollCtrl,
               padding: const EdgeInsets.all(12),
-              itemCount: _msgs.length + (_isTyping ? 1 : 0),
+              itemCount: chatHistory.length + (_isTyping ? 1 : 0),
               itemBuilder: (_, i) {
-                if (_isTyping && i == _msgs.length) {
+                if (_isTyping && i == chatHistory.length) {
                   return const _TypingIndicator();
                 }
-                return _BubbleWidget(msg: _msgs[i]);
+                final msg = chatHistory[i];
+                return _BubbleWidget(
+                  msg: _ChatMsg(text: msg.text, isBot: msg.isBot),
+                );
               },
             ),
           ),
@@ -528,8 +614,7 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
                         borderSide: BorderSide(color: c.divider)),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22),
-                        borderSide: BorderSide(
-                            color: const Color(0xFF2196F3), width: 1.5)),
+                        borderSide: BorderSide(color: c.primary, width: 1.5)),
                   ),
                   onSubmitted: (_) => _send(),
                 ),
@@ -538,9 +623,10 @@ class _HealthAssistantOverlayState extends State<HealthAssistantOverlay> {
               GestureDetector(
                 onTap: _send,
                 child: Container(
-                  width: 40, height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF2196F3),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: c.primary,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.send_rounded,
@@ -570,10 +656,12 @@ class _TypingIndicatorState extends State<_TypingIndicator>
   @override
   void initState() {
     super.initState();
-    _ctrls = List.generate(3, (i) => AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    ));
+    _ctrls = List.generate(
+        3,
+        (i) => AnimationController(
+              vsync: this,
+              duration: const Duration(milliseconds: 400),
+            ));
     _anims = _ctrls
         .map((c) => Tween<double>(begin: 0, end: -6).animate(
               CurvedAnimation(parent: c, curve: Curves.easeInOut),
@@ -606,22 +694,25 @@ class _TypingIndicatorState extends State<_TypingIndicator>
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: c.divider),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: List.generate(3, (i) {
-          return AnimatedBuilder(
-            animation: _anims[i],
-            builder: (_, __) => Transform.translate(
-              offset: Offset(0, _anims[i].value),
-              child: Container(
-                width: 7, height: 7,
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2196F3),
-                  shape: BoxShape.circle,
+        child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(3, (i) {
+              return AnimatedBuilder(
+                animation: _anims[i],
+                builder: (_, __) => Transform.translate(
+                  offset: Offset(0, _anims[i].value),
+                  child: Container(
+                    width: 7,
+                    height: 7,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF2196F3),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        })),
+              );
+            })),
       ),
     );
   }

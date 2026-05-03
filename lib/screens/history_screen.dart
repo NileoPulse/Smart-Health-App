@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../services/mock_data.dart';
+import '../models/models.dart';
 import 'session_report_screen.dart';
 
 const _kBlue = Color(0xFF2196F3);
@@ -25,7 +27,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    // Simulate loading — هيتبدل بـ API call مع الباك اند
     Future.delayed(const Duration(milliseconds: 900), () {
       if (mounted) setState(() => _loading = false);
     });
@@ -33,101 +34,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   static const _filters = ['7 Days', 'Month', 'All'];
 
-  final _allSessions = [
-    _Session(
-      id: '001',
-      date: 'Today',
-      time: '10:32 AM',
-      machine: 'Central Health Hub',
-      bp: '120/80',
-      sugar: '98',
-      pulse: '72',
-      temp: '36.5',
-      spo2: '98',
-      score: 82,
-      status: _SessionStatus.normal,
-      daysAgo: 0,
-    ),
-    _Session(
-      id: '002',
-      date: 'Yesterday',
-      time: '2:15 PM',
-      machine: 'East Mall Station',
-      bp: '125/82',
-      sugar: '105',
-      pulse: '75',
-      temp: '36.8',
-      spo2: '97',
-      score: 78,
-      status: _SessionStatus.warning,
-      daysAgo: 1,
-    ),
-    _Session(
-      id: '003',
-      date: 'Mar 19',
-      time: '9:00 AM',
-      machine: 'North Community Center',
-      bp: '118/76',
-      sugar: '92',
-      pulse: '68',
-      temp: '36.4',
-      spo2: '99',
-      score: 88,
-      status: _SessionStatus.normal,
-      daysAgo: 2,
-    ),
-    _Session(
-      id: '004',
-      date: 'Mar 15',
-      time: '11:45 AM',
-      machine: 'Central Health Hub',
-      bp: '132/88',
-      sugar: '118',
-      pulse: '82',
-      temp: '37.1',
-      spo2: '96',
-      score: 65,
-      status: _SessionStatus.warning,
-      daysAgo: 6,
-    ),
-    _Session(
-      id: '005',
-      date: 'Mar 10',
-      time: '4:00 PM',
-      machine: 'Westside Clinic Kiosk',
-      bp: '145/95',
-      sugar: '130',
-      pulse: '90',
-      temp: '37.4',
-      spo2: '95',
-      score: 50,
-      status: _SessionStatus.danger,
-      daysAgo: 11,
-    ),
-    _Session(
-      id: '006',
-      date: 'Mar 1',
-      time: '8:30 AM',
-      machine: 'East Mall Station',
-      bp: '119/78',
-      sugar: '96',
-      pulse: '70',
-      temp: '36.6',
-      spo2: '98',
-      score: 85,
-      status: _SessionStatus.normal,
-      daysAgo: 20,
-    ),
-  ];
-
-  List<_Session> get _filtered {
+  List<SessionModel> get _filtered {
     switch (_filterIndex) {
       case 0:
-        return _allSessions.where((s) => s.daysAgo <= 7).toList();
+        return MockDataService.sessions.where((s) => s.daysAgo <= 7).toList();
       case 1:
-        return _allSessions.where((s) => s.daysAgo <= 30).toList();
+        return MockDataService.sessions.where((s) => s.daysAgo <= 30).toList();
       default:
-        return _allSessions;
+        return MockDataService.sessions;
     }
   }
 
@@ -154,11 +68,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back,
-                          color: Colors.white, size: 22),
-                    ),
+                    const Icon(Icons.history, color: Colors.white, size: 22),
                     const SizedBox(width: 12),
                     const Text('Session History',
                         style: TextStyle(
@@ -267,14 +177,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
 // ── Session Card ─────────────────────────────────────────────
 class _SessionCard extends StatelessWidget {
-  final _Session session;
+  final SessionModel session;
   final VoidCallback onViewDetails;
 
   const _SessionCard({required this.session, required this.onViewDetails});
 
   Color get _scoreColor {
-    if (session.score >= 80) return _kGreen;
-    if (session.score >= 60) return _kOrange;
+    if (session.healthScore >= 80) return _kGreen;
+    if (session.healthScore >= 60) return _kOrange;
     return _kRed;
   }
 
@@ -294,7 +204,6 @@ class _SessionCard extends StatelessWidget {
         ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Top row — date + score
         Row(children: [
           Container(
             padding: const EdgeInsets.all(8),
@@ -312,12 +221,10 @@ class _SessionCard extends StatelessWidget {
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: _kTextDark)),
-            Text(session.machine,
+            Text(session.machineName,
                 style: const TextStyle(fontSize: 11, color: _kTextGrey)),
           ]),
           const Spacer(),
-
-          // Health score mini badge
           Container(
             width: 44,
             height: 44,
@@ -326,7 +233,7 @@ class _SessionCard extends StatelessWidget {
               border: Border.all(color: _scoreColor, width: 2.5),
             ),
             child: Center(
-              child: Text('${session.score}',
+              child: Text('${session.healthScore}',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -337,8 +244,6 @@ class _SessionCard extends StatelessWidget {
         const SizedBox(height: 12),
         const Divider(height: 1, color: _kBorder),
         const SizedBox(height: 12),
-
-        // Readings row
         Wrap(spacing: 10, runSpacing: 8, children: [
           _ReadingBadge(label: 'BP', value: session.bp, unit: 'mmHg'),
           _ReadingBadge(label: 'Sugar', value: session.sugar, unit: 'mg/dL'),
@@ -347,8 +252,6 @@ class _SessionCard extends StatelessWidget {
           _ReadingBadge(label: 'SpO₂', value: session.spo2, unit: '%'),
         ]),
         const SizedBox(height: 12),
-
-        // View Details button
         SizedBox(
           width: double.infinity,
           height: 40,
@@ -396,28 +299,4 @@ class _ReadingBadge extends StatelessWidget {
       ]),
     );
   }
-}
-
-// ── Data Model ───────────────────────────────────────────────
-enum _SessionStatus { normal, warning, danger }
-
-class _Session {
-  final String id, date, time, machine, bp, sugar, pulse, temp, spo2;
-  final int score, daysAgo;
-  final _SessionStatus status;
-
-  const _Session({
-    required this.id,
-    required this.date,
-    required this.time,
-    required this.machine,
-    required this.bp,
-    required this.sugar,
-    required this.pulse,
-    required this.temp,
-    required this.spo2,
-    required this.score,
-    required this.status,
-    required this.daysAgo,
-  });
 }

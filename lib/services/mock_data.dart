@@ -1,11 +1,5 @@
 import 'package:smarthealth/models/models.dart';
 
-// ═══════════════════════════════════════════════════════════════
-//  SmartHealth — Mock Data Service
-//  كل البيانات الـ static في مكان واحد
-//  لما يجي الباك اند، بس تبدل المحتوى هنا بـ API calls
-// ═══════════════════════════════════════════════════════════════
-
 class MockDataService {
   MockDataService._(); // prevent instantiation — use static only
 

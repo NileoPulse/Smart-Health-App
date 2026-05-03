@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-// ═══════════════════════════════════════════════════════════════
-//  SmartHealth — UI State Widgets
-//  loading / empty / error — جاهزة تتحط في أي شاشة
-// ═══════════════════════════════════════════════════════════════
-
 // ── Loading State ────────────────────────────────────────────
 class LoadingState extends StatelessWidget {
   final String? message;
@@ -81,7 +76,8 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 subtitle!,
-                style: TextStyle(fontSize: 13, color: c.textSecond, height: 1.5),
+                style:
+                    TextStyle(fontSize: 13, color: c.textSecond, height: 1.5),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -93,7 +89,8 @@ class EmptyState extends StatelessWidget {
                   backgroundColor: c.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24)),
                 ),
@@ -147,7 +144,8 @@ class ErrorState extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 message!,
-                style: TextStyle(fontSize: 13, color: c.textSecond, height: 1.5),
+                style:
+                    TextStyle(fontSize: 13, color: c.textSecond, height: 1.5),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -160,8 +158,8 @@ class ErrorState extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: c.primary,
                   side: BorderSide(color: c.primary),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24)),
                 ),
@@ -175,12 +173,12 @@ class ErrorState extends StatelessWidget {
 }
 
 // ── Screen State Wrapper ──────────────────────────────────────
-// استخدمه في أي شاشة بدل ما تكتب الـ if/else كل مرة
+
 enum ScreenState { loading, empty, error, success }
 
 class ScreenStateBuilder extends StatelessWidget {
   final ScreenState state;
-  final Widget child;                  // success content
+  final Widget child; // success content
   final String? loadingMessage;
   final IconData emptyIcon;
   final String emptyTitle;
@@ -208,14 +206,14 @@ class ScreenStateBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (state) {
       ScreenState.loading => LoadingState(message: loadingMessage),
-      ScreenState.empty   => EmptyState(
+      ScreenState.empty => EmptyState(
           icon: emptyIcon,
           title: emptyTitle,
           subtitle: emptySubtitle,
           buttonLabel: emptyButtonLabel,
           onAction: onEmptyAction,
         ),
-      ScreenState.error   => ErrorState(message: errorMessage, onRetry: onRetry),
+      ScreenState.error => ErrorState(message: errorMessage, onRetry: onRetry),
       ScreenState.success => child,
     };
   }

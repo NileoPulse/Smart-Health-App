@@ -106,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     MaterialPageRoute(
                         builder: (_) => const EditProfileScreen()),
                   );
-                  // إعادة تحميل البيانات بعد الرجوع
+
                   _loadProfile();
                 },
                 icon: const Icon(Icons.edit_outlined,
@@ -300,7 +300,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // ✅ Dark mode: _deco تستقبل BuildContext وتسحب c.inputFill و c.divider من الثيم
   InputDecoration _deco(
     BuildContext context,
     String label,
@@ -313,15 +312,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       hintText: hint,
       prefixIcon: Icon(icon, color: c.textSecond, size: 20),
       filled: true,
-      fillColor: c.inputFill, // ✅ بدل Colors.white الثابت
+      fillColor: c.inputFill,
       labelStyle: TextStyle(color: c.textSecond, fontSize: 13),
       hintStyle: TextStyle(color: c.textHint, fontSize: 13),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: c.divider)), // ✅ بدل Color(0xFFE0E0E0)
+          borderSide: BorderSide(color: c.divider)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: c.divider)), // ✅ بدل Color(0xFFE0E0E0)
+          borderSide: BorderSide(color: c.divider)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: c.primary, width: 1.5)),
@@ -416,7 +415,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextFormField(
               controller: _nameCtrl,
               style: TextStyle(color: c.textPrimary),
-              // ✅ context مُمرر لـ _deco لسحب inputFill و divider من الثيم
               decoration: _deco(context, 'Full Name', 'Enter your full name',
                   Icons.person_outline),
               validator: (v) =>

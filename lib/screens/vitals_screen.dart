@@ -186,15 +186,6 @@ class _VitalsScreenState extends State<VitalsScreen> {
             ),
           ],
         ),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton(
-            onPressed: () {},
-            backgroundColor: c.primary,
-            child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
-          ),
-        ),
       ]),
     );
   }

@@ -64,14 +64,13 @@ class _MainNavScreenState extends State<MainNavScreen> {
             child: IndexedStack(index: _index, children: screens),
           ),
 
-          // Barrier — يمنع التفاعل مع أي حاجة وراء الـ chatbot
           if (_showAssistant)
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                 child: ModalBarrier(
                   dismissible: true,
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   onDismiss: () => setState(() => _showAssistant = false),
                 ),
               ),
